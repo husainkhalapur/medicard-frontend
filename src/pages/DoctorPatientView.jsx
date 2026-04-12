@@ -38,7 +38,7 @@ export default function DoctorPatientView() {
   const [interactionResult, setInteractionResult] = useState(null);
   const [interactionAcknowledged, setInteractionAcknowledged] = useState(false);
 
-  const fetchAll = useCallback () => {
+  const fetchAll = useCallback(async () => {
     setLoading(true);
     try {
       const [patientRes, recordsRes, prescRes] = await Promise.all([
@@ -54,8 +54,8 @@ export default function DoctorPatientView() {
     } finally {
       setLoading(false);
     }
-  };
-
+  }, [uniqueId]);
+  
   useEffect(() => {
     fetchAll();
   }, [fetchAll]);
