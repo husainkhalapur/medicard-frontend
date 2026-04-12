@@ -1,0 +1,75 @@
+.doctor-dashboard-page { min-height: 100vh; background: var(--surface); }
+.doctor-dashboard-inner { max-width: 1100px; margin: 0 auto; padding: 40px 32px; display: flex; flex-direction: column; gap: 24px; }
+
+.doctor-welcome {
+  background: linear-gradient(135deg, #0d1d2a 0%, #394857 100%);
+  border-radius: var(--radius-xl); padding: 32px 40px;
+  display: flex; align-items: center; justify-content: space-between; gap: 32px;
+  box-shadow: 0 8px 32px rgba(13,29,42,0.25);
+}
+.welcome-greeting { font-size: 13px; color: rgba(255,255,255,0.55); margin-bottom: 4px; font-weight: 500; }
+.welcome-name { font-size: 30px; color: white; margin-bottom: 6px; font-family: 'Manrope', sans-serif; font-weight: 800; }
+.welcome-sub { font-size: 14px; color: rgba(255,255,255,0.6); }
+
+.doctor-license-badge {
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+  border-radius: var(--radius-lg); padding: 18px 24px;
+  text-align: center; min-width: 200px; backdrop-filter: blur(8px);
+}
+.license-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: rgba(255,255,255,0.45); margin-bottom: 8px; font-weight: 700; font-family: 'Manrope', sans-serif; }
+.license-value { font-family: monospace; font-size: 15px; color: var(--secondary-fixed-dim); font-weight: 700; letter-spacing: 1px; }
+.license-sub { font-size: 11px; color: rgba(255,255,255,0.35); margin-top: 6px; }
+
+.search-card {}
+.search-desc { font-size: 14px; color: var(--outline); margin-bottom: 20px; margin-top: -8px; }
+.search-row { display: flex; gap: 12px; }
+.search-input { flex: 1; font-size: 16px !important; font-family: monospace !important; letter-spacing: 1px; }
+.search-btn { white-space: nowrap; background: linear-gradient(135deg, #394857, #51606f) !important; padding: 11px 28px !important; }
+.search-btn:hover { opacity: 0.9 !important; }
+.search-error {
+  background: var(--error-container); color: var(--on-error-container);
+  padding: 10px 14px; border-radius: var(--radius-md);
+  font-size: 14px; font-weight: 500; margin-top: 12px;
+  display: flex; align-items: center; gap: 8px;
+}
+.search-hint { font-size: 13px; color: var(--outline); margin-top: 12px; display: flex; align-items: center; gap: 6px; }
+
+.doctor-stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; }
+.doctor-stat-card {
+  background: var(--surface-container-lowest);
+  border-radius: var(--radius-lg); padding: 22px;
+  display: flex; flex-direction: column; align-items: center;
+  text-align: center; gap: 6px; transition: var(--transition);
+  box-shadow: var(--shadow-ambient);
+}
+.doctor-stat-card:hover { box-shadow: var(--shadow-elevated); transform: translateY(-2px); }
+.doctor-stat-val { font-family: 'Manrope', sans-serif; font-size: 17px; font-weight: 700; color: var(--secondary); }
+
+.recent-patients-list { display: flex; flex-direction: column; }
+.recent-patient-row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 0; border-bottom: 1px solid var(--surface-container);
+  cursor: pointer; transition: var(--transition);
+}
+.recent-patient-row:last-child { border-bottom: none; }
+.recent-patient-row:hover { background: var(--surface-container-low); margin: 0 -28px; padding: 14px 28px; border-radius: var(--radius-md); }
+.recent-patient-avatar {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: linear-gradient(135deg, #394857, #51606f);
+  color: white; font-size: 16px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; font-family: 'Manrope', sans-serif;
+}
+.recent-patient-info { flex: 1; }
+.recent-patient-name { font-size: 15px; font-weight: 700; color: var(--on-surface); font-family: 'Manrope', sans-serif; }
+.recent-patient-id { font-size: 12px; color: var(--outline); font-family: monospace; margin-top: 2px; }
+.recent-patient-time { font-size: 12px; color: var(--outline); white-space: nowrap; }
+.recent-arrow { color: var(--outline); font-size: 18px !important; transition: var(--transition); }
+.recent-patient-row:hover .recent-arrow { transform: translateX(3px); color: var(--secondary); }
+
+@media (max-width: 900px) {
+  .doctor-stats { grid-template-columns: repeat(2,1fr); }
+  .doctor-welcome { flex-direction: column; align-items: flex-start; }
+  .search-row { flex-direction: column; }
+  .doctor-dashboard-inner { padding: 24px 16px; }
+}

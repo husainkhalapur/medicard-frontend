@@ -1,0 +1,87 @@
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  border-bottom: 1px solid rgba(194,198,212,0.3);
+}
+
+.navbar-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 32px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'Manrope', sans-serif;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--primary);
+  letter-spacing: -0.5px;
+}
+
+.brand-icon {
+  font-size: 24px !important;
+  color: var(--primary);
+}
+
+.navbar-links {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: var(--radius-full);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: 'Manrope', sans-serif;
+  color: var(--on-surface-variant);
+  transition: var(--transition);
+}
+.nav-link .material-symbols-outlined { font-size: 17px !important; }
+.nav-link:hover { background: var(--surface-container-high); color: var(--primary); }
+.nav-link.active { background: var(--primary-fixed); color: var(--primary); }
+
+.navbar-divider { width: 1px; height: 24px; background: var(--outline-variant); margin: 0 8px; opacity: 0.4; }
+
+.navbar-user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 14px 4px 4px;
+  border-radius: var(--radius-full);
+  transition: var(--transition);
+}
+.navbar-user:hover { background: var(--surface-container-high); }
+
+.user-avatar {
+  width: 32px; height: 32px;
+  background: var(--hero-gradient);
+  border-radius: 50%;
+  color: white;
+  font-size: 13px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Manrope', sans-serif;
+}
+
+.user-name { font-size: 13px; font-weight: 600; color: var(--on-surface-variant); font-family: 'Manrope', sans-serif; }
+.nav-logout { margin-left: 4px; }
+
+@media (max-width: 1100px) {
+  .nav-link span.material-symbols-outlined { display: none; }
+  .user-name { display: none; }
+}
+@media (max-width: 768px) {
+  .navbar-inner { padding: 0 16px; }
+}

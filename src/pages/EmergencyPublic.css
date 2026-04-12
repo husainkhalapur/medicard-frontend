@@ -1,0 +1,86 @@
+.pub-page { min-height: 100vh; background: var(--surface-container-low); font-family: 'Inter', sans-serif; }
+
+.pub-header {
+  background: var(--hero-gradient);
+  padding: 16px 24px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.pub-brand {
+  display: flex; align-items: center; gap: 10px;
+  font-family: 'Manrope', sans-serif; font-size: 20px; font-weight: 800; color: white;
+}
+.pub-brand .material-symbols-outlined { font-size: 24px !important; }
+.pub-emergency-badge {
+  background: var(--error); color: white;
+  padding: 6px 18px; border-radius: var(--radius-full);
+  font-size: 13px; font-weight: 700;
+  font-family: 'Manrope', sans-serif;
+  letter-spacing: 0.5px;
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.7; } }
+
+.pub-inner { max-width: 600px; margin: 0 auto; padding: 32px 24px; display: flex; flex-direction: column; gap: 20px; }
+
+.pub-identity-card {
+  background: var(--surface-container-lowest);
+  border-radius: var(--radius-xl); padding: 28px;
+  display: flex; align-items: center; gap: 20px;
+  box-shadow: var(--shadow-elevated);
+  border-top: 3px solid var(--primary);
+}
+.pub-avatar {
+  width: 72px; height: 72px; border-radius: 50%;
+  background: var(--hero-gradient);
+  color: white; font-size: 28px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; font-family: 'Manrope', sans-serif;
+}
+.pub-name { font-size: 26px; font-family: 'Manrope', sans-serif; font-weight: 800; color: var(--on-surface); margin-bottom: 4px; }
+.pub-id { font-size: 13px; color: var(--outline); font-family: monospace; margin-bottom: 8px; }
+.pub-blood { font-size: 16px; color: var(--on-surface-variant); }
+
+.pub-section {
+  background: var(--surface-container-lowest);
+  border-radius: var(--radius-xl); padding: 20px 24px;
+  box-shadow: var(--shadow-ambient);
+}
+.pub-critical { border-left: 4px solid var(--error); }
+.pub-section-title {
+  font-size: 11px; font-weight: 800; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--outline);
+  margin-bottom: 14px; font-family: 'Manrope', sans-serif;
+}
+.pub-tags { display: flex; flex-wrap: wrap; gap: 10px; }
+.pub-tag { padding: 6px 16px; border-radius: var(--radius-full); font-size: 14px; font-weight: 600; font-family: 'Manrope', sans-serif; }
+.pub-tag-red { background: var(--error-container); color: var(--on-error-container); }
+.pub-tag-orange { background: var(--tertiary-fixed); color: var(--on-tertiary-fixed); }
+.pub-tag-blue { background: var(--secondary-container); color: var(--on-secondary-fixed); }
+
+.pub-notes { border-left: 4px solid var(--primary); }
+.pub-notes-text { font-size: 15px; color: var(--on-surface-variant); line-height: 1.7; }
+
+.pub-contact { border-left: 4px solid var(--secondary); }
+.pub-contact-name { font-size: 18px; font-weight: 700; color: var(--on-surface); margin-bottom: 14px; font-family: 'Manrope', sans-serif; }
+.pub-call-btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: #16a34a; color: white;
+  padding: 14px 28px; border-radius: var(--radius-full);
+  font-size: 16px; font-weight: 700; transition: var(--transition);
+  font-family: 'Manrope', sans-serif;
+}
+.pub-call-btn:hover { background: #15803d; transform: translateY(-1px); }
+
+.pub-footer { text-align: center; padding: 16px; font-size: 12px; color: var(--outline); line-height: 1.7; }
+
+.pub-loading { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; gap: 16px; color: var(--outline); }
+.pub-spinner {
+  width: 36px; height: 36px;
+  border: 3px solid var(--surface-container-high);
+  border-top-color: var(--primary);
+  border-radius: 50%; animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.pub-notfound { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 80vh; text-align: center; padding: 32px; gap: 12px; }
+.pub-notfound h2 { font-size: 28px; color: var(--on-surface); font-family: 'Manrope', sans-serif; font-weight: 800; }
+.pub-notfound p { font-size: 15px; color: var(--on-surface-variant); }

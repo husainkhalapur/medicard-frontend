@@ -1,0 +1,36 @@
+.emergency-page { min-height: 100vh; background: var(--surface); }
+.emergency-inner { max-width: 1100px; margin: 0 auto; padding: 40px 32px; display: flex; flex-direction: column; gap: 24px; }
+.emergency-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.emergency-grid { display: grid; grid-template-columns: 290px 1fr; gap: 24px; align-items: start; }
+.emergency-details { display: flex; flex-direction: column; gap: 20px; }
+.emergency-fields { display: flex; flex-direction: column; gap: 22px; }
+
+.qr-card { display: flex; flex-direction: column; gap: 16px; }
+.qr-top { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.qr-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--outline); font-weight: 700; font-family: 'Manrope', sans-serif; }
+.qr-img-wrap {
+  width: 180px; height: 180px;
+  background: var(--surface-container-low);
+  border-radius: var(--radius-xl);
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+}
+.qr-image { width: 160px; height: 160px; }
+.qr-id { font-family: monospace; font-size: 18px; font-weight: 700; color: var(--primary); letter-spacing: 1px; }
+.qr-sub { font-size: 12px; color: var(--outline); }
+.qr-actions { display: flex; flex-direction: column; gap: 8px; }
+
+.nfc-badge {
+  background: var(--surface-container-low);
+  border-radius: var(--radius-md);
+  padding: 12px; font-size: 11px; color: var(--on-surface-variant); line-height: 1.7;
+}
+.nfc-badge code { display: block; margin-top: 4px; font-size: 10px; color: var(--primary); word-break: break-all; }
+
+.first-aid-text { font-size: 14px; color: var(--on-surface); line-height: 1.65; padding: 12px 0; border-bottom: 1px solid var(--surface-container); }
+.loading-state { display: flex; align-items: center; justify-content: center; height: 50vh; color: var(--outline); font-size: 16px; }
+
+@media (max-width: 900px) {
+  .emergency-grid { grid-template-columns: 1fr; }
+  .emergency-inner { padding: 24px 16px; }
+}

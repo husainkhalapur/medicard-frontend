@@ -1,0 +1,110 @@
+.auth-page { min-height: 100vh; display: grid; grid-template-columns: 1fr 1fr; }
+
+/* Left panel */
+.auth-left {
+  background: var(--hero-gradient);
+  padding: 48px;
+  display: flex; flex-direction: column;
+  position: relative; overflow: hidden;
+}
+.auth-left::before {
+  content: '';
+  position: absolute; top: -30%; right: -20%;
+  width: 500px; height: 500px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.05);
+  pointer-events: none;
+}
+.auth-left::after {
+  content: '';
+  position: absolute; bottom: -20%; left: -10%;
+  width: 300px; height: 300px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.04);
+  pointer-events: none;
+}
+
+.auth-brand {
+  display: flex; align-items: center; gap: 10px;
+  font-family: 'Manrope', sans-serif;
+  font-size: 22px; font-weight: 800;
+  color: white; margin-bottom: auto;
+}
+.auth-brand .material-symbols-outlined { font-size: 26px !important; }
+
+.auth-left-content { flex: 1; display: flex; flex-direction: column; justify-content: center; max-width: 380px; }
+.auth-left-content h2 { font-size: 40px; font-weight: 800; color: white; margin-bottom: 16px; line-height: 1.1; }
+.auth-left-content p { font-size: 15px; color: rgba(255,255,255,0.75); line-height: 1.75; margin-bottom: 40px; }
+
+.auth-perks { display: flex; flex-direction: column; gap: 16px; }
+.perk-item { display: flex; align-items: center; gap: 12px; color: rgba(255,255,255,0.9); font-size: 14px; font-weight: 500; }
+.perk-check {
+  width: 26px; height: 26px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; color: white; flex-shrink: 0;
+  font-weight: 700;
+}
+
+/* Right panel */
+.auth-right {
+  background: var(--surface);
+  display: flex; align-items: center; justify-content: center;
+  padding: 48px;
+}
+
+.auth-form-wrap { width: 100%; max-width: 420px; }
+
+/* Step indicators */
+.auth-steps { display: flex; align-items: center; gap: 8px; margin-bottom: 36px; }
+.auth-step {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: var(--surface-container-high);
+  color: var(--outline);
+  font-size: 13px; font-weight: 700;
+  font-family: 'Manrope', sans-serif;
+  display: flex; align-items: center; justify-content: center;
+  transition: var(--transition);
+}
+.auth-step.active { background: var(--primary); color: white; }
+.auth-step-line { flex: 1; height: 2px; background: var(--surface-container-high); }
+
+.auth-title { font-size: 30px; font-weight: 800; color: var(--on-surface); margin-bottom: 6px; }
+.auth-sub { font-size: 14px; color: var(--outline); margin-bottom: 32px; }
+
+.auth-error {
+  background: var(--error-container);
+  border-radius: var(--radius-md);
+  color: var(--on-error-container);
+  padding: 12px 16px;
+  font-size: 14px; font-weight: 500;
+  margin-bottom: 20px;
+  display: flex; align-items: center; gap: 8px;
+}
+
+.auth-fields { display: flex; flex-direction: column; gap: 20px; }
+.auth-btn { width: 100%; justify-content: center; padding: 14px !important; font-size: 15px !important; }
+.auth-btn-row { display: flex; gap: 12px; }
+.auth-btn-row .btn-outline { flex: 1; justify-content: center; }
+.auth-btn-row .btn-primary { flex: 2; justify-content: center; }
+
+.auth-switch { text-align: center; font-size: 14px; color: var(--outline); margin-top: 28px; }
+.auth-switch a { color: var(--primary); font-weight: 600; }
+.auth-switch a:hover { text-decoration: underline; }
+
+.verification-note {
+  display: flex; gap: 10px; align-items: flex-start;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: var(--radius-md);
+  padding: 14px 16px; margin-top: 24px;
+}
+.verification-note .material-symbols-outlined { font-size: 18px !important; color: rgba(255,255,255,0.8); flex-shrink: 0; }
+.verification-note p { font-size: 12px; color: rgba(255,255,255,0.7); line-height: 1.6; }
+
+@media (max-width: 768px) {
+  .auth-page { grid-template-columns: 1fr; }
+  .auth-left { display: none; }
+  .auth-right { padding: 32px 24px; }
+}

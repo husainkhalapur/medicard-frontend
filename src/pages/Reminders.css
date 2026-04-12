@@ -1,0 +1,181 @@
+.reminders-page { min-height: 100vh; background: var(--surface); }
+.reminders-inner { max-width: 1200px; margin: 0 auto; padding: 40px 32px; display: flex; flex-direction: column; gap: 24px; }
+
+.reminders-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.header-right { display: flex; align-items: center; gap: 12px; }
+
+.notif-btn {
+  background: var(--tertiary-fixed); color: var(--on-tertiary-fixed);
+  border: none; padding: 9px 18px; border-radius: var(--radius-full);
+  font-size: 13px; font-weight: 600; font-family: 'Manrope', sans-serif;
+  cursor: pointer; transition: var(--transition);
+}
+.notif-btn:hover { opacity: 0.85; }
+.notif-active {
+  font-size: 13px; color: #166534; font-weight: 600;
+  background: #dcfce7; padding: 8px 16px; border-radius: var(--radius-full);
+  font-family: 'Manrope', sans-serif;
+}
+
+.reminder-tabs { display: flex; gap: 8px; }
+.reminder-tab {
+  padding: 10px 22px;
+  background: var(--surface-container-lowest);
+  border: none;
+  border-radius: var(--radius-full);
+  font-size: 14px; font-weight: 600;
+  font-family: 'Manrope', sans-serif;
+  color: var(--on-surface-variant);
+  cursor: pointer; transition: var(--transition);
+  box-shadow: var(--shadow-ambient);
+}
+.reminder-tab:hover { background: var(--secondary-container); color: var(--on-secondary-fixed); }
+.reminder-tab.active { background: var(--primary); color: white; box-shadow: 0 4px 16px rgba(0,71,141,0.2); }
+
+.calendar-layout { display: grid; grid-template-columns: 1fr 340px; gap: 20px; align-items: start; }
+
+.calendar-card {}
+.calendar-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+.calendar-month { font-family: 'Manrope', sans-serif; font-size: 22px; font-weight: 700; color: var(--on-surface); }
+.cal-nav-btn {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--surface-container-high); border: none;
+  font-size: 16px; cursor: pointer; transition: var(--transition);
+  display: flex; align-items: center; justify-content: center;
+}
+.cal-nav-btn:hover { background: var(--secondary-container); color: var(--primary); }
+
+.calendar-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 4px; }
+.cal-day-header { text-align: center; font-size: 11px; font-weight: 700; color: var(--outline); padding: 8px 0; text-transform: uppercase; letter-spacing: 0.5px; font-family: 'Manrope', sans-serif; }
+
+.cal-day {
+  aspect-ratio: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 3px;
+  border-radius: var(--radius-md); cursor: pointer;
+  transition: var(--transition); position: relative; padding: 4px;
+}
+.cal-day:hover { background: var(--surface-container-high); }
+.cal-day.empty { cursor: default; }
+.cal-day.empty:hover { background: none; }
+.cal-day.selected { background: var(--primary) !important; }
+.cal-day.selected .cal-day-num { color: white !important; }
+.cal-day.today .cal-day-num { color: var(--primary); font-weight: 800; }
+.cal-day.has-logs { background: var(--surface-container-low); }
+
+.cal-day-num { font-size: 14px; color: var(--on-surface); font-weight: 600; font-family: 'Manrope', sans-serif; }
+.cal-dot { width: 7px; height: 7px; border-radius: 50%; }
+.cal-dot.green { background: #16a34a; }
+.cal-dot.yellow { background: #d97706; }
+.cal-dot.red { background: var(--error); }
+.cal-count { font-size: 10px; color: var(--outline); }
+
+.cal-legend { display: flex; gap: 16px; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--surface-container); justify-content: center; }
+.legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--on-surface-variant); font-weight: 500; }
+
+.day-detail-card {}
+.day-detail-title { font-family: 'Manrope', sans-serif; font-size: 18px; font-weight: 700; color: var(--on-surface); margin-bottom: 20px; }
+
+.dose-list { display: flex; flex-direction: column; gap: 10px; }
+.dose-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px; border-radius: var(--radius-lg);
+  transition: var(--transition);
+}
+.dose-item.taken { background: #f0fdf4; }
+.dose-item.missed { background: var(--error-container); opacity: 0.8; }
+.dose-item.pending { background: var(--tertiary-fixed); opacity: 0.9; }
+
+.dose-status-icon { font-size: 20px; flex-shrink: 0; }
+.dose-info { flex: 1; }
+.dose-medicine { font-size: 14px; font-weight: 700; color: var(--on-surface); font-family: 'Manrope', sans-serif; }
+.dose-time { font-size: 12px; color: var(--outline); margin-top: 2px; }
+
+.dose-take-btn {
+  background: var(--primary); color: white; border: none;
+  padding: 7px 14px; border-radius: var(--radius-full);
+  font-size: 12px; font-weight: 700; cursor: pointer; transition: var(--transition);
+  white-space: nowrap; font-family: 'Manrope', sans-serif;
+}
+.dose-take-btn:hover { opacity: 0.88; }
+.dose-undo-btn {
+  background: none; color: var(--outline); border: 1px solid var(--outline-variant);
+  padding: 6px 12px; border-radius: var(--radius-full);
+  font-size: 12px; cursor: pointer; transition: var(--transition);
+}
+.dose-undo-btn:hover { background: var(--surface-container-high); }
+.dose-missed-label { font-size: 12px; color: var(--on-error-container); font-weight: 700; font-family: 'Manrope', sans-serif; }
+
+.manage-layout { display: flex; flex-direction: column; gap: 24px; }
+.manage-section {}
+.manage-section-title { font-family: 'Manrope', sans-serif; font-size: 20px; font-weight: 700; color: var(--on-surface); margin-bottom: 16px; }
+
+.reminders-list { display: flex; flex-direction: column; gap: 14px; }
+.reminder-card {
+  background: var(--surface-container-lowest);
+  border-radius: var(--radius-xl); padding: 22px;
+  transition: var(--transition); box-shadow: var(--shadow-ambient);
+}
+.reminder-card:hover { box-shadow: var(--shadow-elevated); }
+.reminder-card.inactive { opacity: 0.55; }
+
+.reminder-card-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 16px; gap: 12px; }
+.reminder-medicine { font-size: 18px; font-weight: 700; color: var(--on-surface); font-family: 'Manrope', sans-serif; }
+.reminder-frequency { font-size: 13px; color: var(--outline); margin-top: 3px; }
+
+.toggle-btn {
+  padding: 6px 18px; border-radius: var(--radius-full);
+  font-size: 12px; font-weight: 700; border: none; cursor: pointer;
+  transition: var(--transition); font-family: 'Manrope', sans-serif;
+}
+.toggle-btn.on { background: #dcfce7; color: #166534; }
+.toggle-btn.off { background: var(--surface-container-high); color: var(--outline); }
+
+.time-slots { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; align-items: center; }
+.time-slot {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--surface-container-low);
+  padding: 6px 14px; border-radius: var(--radius-full); font-size: 13px;
+}
+.slot-label { color: var(--outline); }
+.slot-time { color: var(--primary); font-weight: 700; font-family: 'Manrope', sans-serif; }
+.edit-times-btn {
+  background: none; border: 1.5px dashed var(--outline-variant); color: var(--outline);
+  padding: 6px 14px; border-radius: var(--radius-full); font-size: 12px;
+  cursor: pointer; transition: var(--transition); font-weight: 600;
+}
+.edit-times-btn:hover { border-color: var(--primary); color: var(--primary); }
+
+.edit-times { background: var(--surface-container-low); border-radius: var(--radius-md); padding: 16px; margin-bottom: 14px; display: flex; flex-direction: column; gap: 10px; }
+.edit-time-row { display: flex; align-items: center; gap: 12px; }
+.edit-time-label { font-size: 13px; color: var(--on-surface-variant); min-width: 110px; font-weight: 500; }
+.time-input {
+  padding: 8px 12px; border: none;
+  border-bottom: 2px solid var(--outline-variant);
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  background: var(--surface-container-high);
+  font-size: 14px; color: var(--on-surface);
+}
+.time-input:focus { border-bottom-color: var(--primary); }
+.edit-time-actions { display: flex; gap: 8px; margin-top: 4px; }
+
+.notif-toggles { display: flex; gap: 16px; flex-wrap: wrap; padding-top: 14px; border-top: 1px solid var(--surface-container); }
+.notif-toggle { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--on-surface-variant); cursor: pointer; font-weight: 500; }
+.notif-toggle input { accent-color: var(--primary); width: 16px; height: 16px; }
+
+.add-reminder-list {
+  background: var(--surface-container-lowest);
+  border-radius: var(--radius-xl); overflow: hidden;
+  box-shadow: var(--shadow-ambient);
+}
+.add-reminder-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px; gap: 16px;
+  border-bottom: 1px solid var(--surface-container);
+  transition: var(--transition);
+}
+.add-reminder-row:last-child { border-bottom: none; }
+.add-reminder-row:hover { background: var(--surface-container-low); }
+.add-reminder-name { font-size: 15px; font-weight: 700; color: var(--on-surface); font-family: 'Manrope', sans-serif; }
+.add-reminder-meta { font-size: 13px; color: var(--outline); margin-top: 2px; }
+
+@media (max-width: 900px) { .calendar-layout { grid-template-columns: 1fr; } .reminders-inner { padding: 24px 16px; } }

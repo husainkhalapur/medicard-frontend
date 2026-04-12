@@ -1,0 +1,53 @@
+.dashboard-page { min-height: 100vh; background: var(--surface); }
+.dashboard-inner { max-width: 1280px; margin: 0 auto; padding: 40px 32px; display: flex; flex-direction: column; gap: 28px; }
+
+.dashboard-header { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.dash-welcome { font-size: 36px; font-weight: 800; color: var(--on-surface); }
+.dash-sub { font-size: 15px; color: var(--on-surface-variant); margin-top: 6px; }
+.dash-header-actions { display: flex; gap: 12px; }
+
+.medicard-id-card {
+  background: var(--hero-gradient);
+  border-radius: var(--radius-xl);
+  padding: 28px 36px;
+  display: flex; align-items: center; justify-content: space-between; gap: 32px;
+  box-shadow: 0 8px 32px rgba(0,71,141,0.2);
+}
+.id-card-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: rgba(255,255,255,0.6); margin-bottom: 8px; font-weight: 600; font-family: 'Manrope', sans-serif; }
+.id-card-value { font-family: 'Manrope', sans-serif; font-size: 32px; font-weight: 800; color: var(--primary-fixed-dim); letter-spacing: 1px; }
+.id-card-sub { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 6px; }
+.id-card-right { display: flex; gap: 32px; }
+.id-card-stat { display: flex; align-items: center; gap: 12px; }
+.id-card-stat .material-symbols-outlined { font-size: 24px !important; color: rgba(255,255,255,0.6); }
+.id-stat-val { font-family: 'Manrope', sans-serif; font-size: 22px; font-weight: 800; color: white; }
+.id-stat-lbl { font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 2px; }
+
+.quick-actions-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; }
+.quick-action-card {
+  border-radius: var(--radius-xl); padding: 24px 20px;
+  display: flex; flex-direction: column; gap: 8px;
+  transition: var(--transition); position: relative;
+  overflow: hidden;
+}
+.quick-action-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-elevated); }
+.qa-icon { font-size: 28px !important; margin-bottom: 4px; }
+.qa-label { font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 15px; }
+.qa-desc { font-size: 13px; color: var(--on-surface-variant); line-height: 1.4; }
+.qa-arrow { position: absolute; top: 20px; right: 20px; font-size: 18px !important; transition: var(--transition); opacity: 0.6; }
+.quick-action-card:hover .qa-arrow { transform: translateX(3px); opacity: 1; }
+
+.dashboard-bottom { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.profile-summary { display: flex; flex-direction: column; }
+.summary-row { display: flex; justify-content: space-between; align-items: center; padding: 13px 0; border-bottom: 1px solid var(--surface-container); }
+.summary-row:last-child { border-bottom: none; }
+.summary-label { font-size: 13px; color: var(--outline); font-weight: 500; }
+.summary-value { font-size: 14px; font-weight: 600; color: var(--on-surface); font-family: 'Manrope', sans-serif; }
+
+@media (max-width: 1024px) { .quick-actions-grid { grid-template-columns: repeat(2,1fr); } }
+@media (max-width: 768px) {
+  .dashboard-bottom { grid-template-columns: 1fr; }
+  .medicard-id-card { flex-direction: column; align-items: flex-start; }
+  .id-card-right { flex-wrap: wrap; gap: 20px; }
+  .dashboard-inner { padding: 24px 16px; }
+  .dashboard-header { flex-direction: column; align-items: flex-start; }
+}

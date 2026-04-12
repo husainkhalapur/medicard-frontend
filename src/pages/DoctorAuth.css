@@ -1,0 +1,45 @@
+.doctor-left {
+  background: linear-gradient(135deg, #0d1d2a 0%, #1a3a6b 100%) !important;
+}
+
+.doctor-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: white; padding: 6px 16px;
+  border-radius: var(--radius-full);
+  font-size: 12px; font-weight: 700;
+  font-family: 'Manrope', sans-serif;
+  margin-bottom: 20px; width: fit-content;
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+
+.doctor-btn { background: linear-gradient(135deg, #394857, #51606f) !important; }
+.auth-step.active.doctor-step { background: var(--secondary) !important; }
+
+.doctor-navbar {
+  background: rgba(247,249,251,0.85) !important;
+  border-bottom: 1px solid rgba(194,198,212,0.4) !important;
+}
+
+.doctor-nav-link {
+  display: flex; align-items: center; gap: 6px;
+  padding: 7px 14px; border-radius: var(--radius-full);
+  font-size: 13px; font-weight: 600;
+  font-family: 'Manrope', sans-serif;
+  color: var(--on-surface-variant); transition: var(--transition);
+}
+.doctor-nav-link:hover { background: var(--secondary-container); color: var(--secondary); }
+.doctor-nav-link.active { background: var(--secondary-container); color: var(--on-secondary-fixed); }
+
+.doctor-avatar {
+  width: 32px; height: 32px;
+  background: linear-gradient(135deg, #394857, #51606f);
+  border-radius: 50%; color: white;
+  font-size: 13px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Manrope', sans-serif;
+}
+
+.doctor-logout-btn { color: var(--secondary) !important; border-color: var(--secondary) !important; }
+.doctor-logout-btn:hover { background: var(--secondary-container) !important; }

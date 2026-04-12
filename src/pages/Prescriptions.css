@@ -1,0 +1,79 @@
+.prescriptions-page { min-height: 100vh; background: var(--surface); }
+.prescriptions-inner { max-width: 1280px; margin: 0 auto; padding: 40px 32px; display: flex; flex-direction: column; gap: 24px; }
+.prescriptions-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+
+.presc-info-badge {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--secondary-container);
+  color: var(--on-secondary-fixed);
+  padding: 10px 18px; border-radius: var(--radius-full);
+  font-size: 13px; font-weight: 600; font-family: 'Manrope', sans-serif;
+}
+
+.presc-section-heading { font-family: 'Manrope', sans-serif; font-size: 20px; font-weight: 700; color: var(--on-surface); margin-bottom: 16px; }
+.presc-section-heading.past { color: var(--outline); font-size: 18px; }
+
+.presc-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 18px; }
+
+.presc-card {
+  background: var(--surface-container-lowest);
+  border-radius: var(--radius-xl);
+  padding: 22px; transition: var(--transition);
+  display: flex; flex-direction: column; gap: 10px;
+  box-shadow: var(--shadow-ambient);
+}
+.presc-card:hover { box-shadow: var(--shadow-elevated); transform: translateY(-2px); }
+.past-card { opacity: 0.6; }
+.past-card:hover { opacity: 0.85; }
+
+.presc-medicine { font-size: 18px; font-weight: 700; color: var(--primary); font-family: 'Manrope', sans-serif; }
+.presc-medicine.past { color: var(--outline); }
+.presc-dosage { font-family: 'Manrope', sans-serif; font-size: 24px; font-weight: 800; color: var(--on-surface); }
+
+.presc-meta-rows { display: flex; flex-direction: column; gap: 6px; }
+.presc-meta-row { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--on-surface-variant); }
+
+.presc-days-badge {
+  display: inline-flex; align-items: center;
+  padding: 5px 14px; border-radius: var(--radius-full);
+  font-size: 12px; font-weight: 700; font-family: 'Manrope', sans-serif;
+  margin-top: 4px; width: fit-content;
+}
+.presc-days-badge.normal { background: #dcfce7; color: #166534; }
+.presc-days-badge.warning { background: var(--tertiary-fixed); color: var(--on-tertiary-fixed); }
+.presc-days-badge.urgent { background: var(--error-container); color: var(--on-error-container); }
+.presc-days-badge.expired { background: var(--surface-container-high); color: var(--outline); }
+
+/* Refill Alert Banner */
+.refill-alert-banner {
+  background: var(--tertiary-fixed);
+  border-radius: var(--radius-xl);
+  padding: 20px 24px;
+  display: flex; gap: 16px; align-items: flex-start;
+}
+.refill-alert-icon { font-size: 28px; flex-shrink: 0; }
+.refill-alert-content { flex: 1; }
+.refill-alert-title { font-size: 16px; font-weight: 700; color: var(--on-tertiary-fixed); margin-bottom: 8px; font-family: 'Manrope', sans-serif; }
+.refill-alert-desc { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+.refill-medicine-tag {
+  background: rgba(255,255,255,0.5); color: var(--on-tertiary-fixed);
+  padding: 4px 12px; border-radius: var(--radius-full);
+  font-size: 13px; font-weight: 600; font-family: 'Manrope', sans-serif;
+}
+.refill-alert-note { font-size: 13px; color: var(--on-tertiary-container); line-height: 1.5; }
+
+.presc-card.refill-warning { border: 2px solid var(--tertiary-fixed-dim); }
+.refill-badge {
+  background: var(--tertiary-fixed); color: var(--on-tertiary-fixed);
+  padding: 6px 12px; border-radius: var(--radius-sm);
+  font-size: 12px; font-weight: 700; margin-bottom: 4px;
+  font-family: 'Manrope', sans-serif;
+}
+.interaction-badge {
+  background: var(--primary-fixed); color: var(--on-primary-fixed);
+  padding: 6px 12px; border-radius: var(--radius-sm);
+  font-size: 12px; font-weight: 500; margin-bottom: 4px; line-height: 1.5;
+}
+
+@media (max-width: 900px) { .presc-grid { grid-template-columns: 1fr 1fr; } .prescriptions-inner { padding: 24px 16px; } }
+@media (max-width: 600px) { .presc-grid { grid-template-columns: 1fr; } }
