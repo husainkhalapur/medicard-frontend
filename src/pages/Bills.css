@@ -1,0 +1,109 @@
+.bills-page { min-height: 100vh; background: var(--surface); }
+.bills-inner { max-width: 1280px; margin: 0 auto; padding: 40px 32px; display: flex; flex-direction: column; gap: 24px; }
+
+.bills-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+
+/* Summary Cards */
+.bills-summary { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; }
+.summary-card {
+  background: var(--surface-container-lowest);
+  border-radius: var(--radius-xl); padding: 20px 24px;
+  display: flex; align-items: center; gap: 16px;
+  box-shadow: var(--shadow-ambient); transition: var(--transition);
+}
+.summary-card:hover { box-shadow: var(--shadow-elevated); transform: translateY(-2px); }
+.summary-icon { font-size: 28px !important; color: var(--primary); flex-shrink: 0; }
+.privacy-card .summary-icon { color: #166534; }
+.summary-val { font-family: 'Manrope', sans-serif; font-size: 22px; font-weight: 800; color: var(--on-surface); }
+.summary-lbl { font-size: 12px; color: var(--outline); margin-top: 3px; font-weight: 500; }
+
+/* Form */
+.bill-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.bill-form-full { grid-column: 1 / -1; }
+
+/* Filter */
+.bills-filter { display: flex; gap: 8px; flex-wrap: wrap; }
+.filter-btn {
+  padding: 7px 18px; border-radius: var(--radius-full);
+  border: none; background: var(--surface-container-high);
+  font-size: 13px; font-weight: 600;
+  font-family: 'Manrope', sans-serif;
+  color: var(--on-surface-variant);
+  cursor: pointer; transition: var(--transition);
+}
+.filter-btn:hover { background: var(--secondary-container); color: var(--on-secondary-fixed); }
+.filter-btn.active { background: var(--primary); color: white; }
+
+/* Bills Layout */
+.bills-layout { display: grid; grid-template-columns: 360px 1fr; gap: 20px; align-items: start; }
+
+/* Bills List */
+.bills-list { display: flex; flex-direction: column; gap: 8px; }
+.bill-item {
+  background: var(--surface-container-lowest);
+  border-radius: var(--radius-lg); padding: 16px 18px;
+  display: flex; align-items: flex-start; gap: 14px;
+  cursor: pointer; transition: var(--transition);
+  box-shadow: var(--shadow-ambient);
+}
+.bill-item:hover { box-shadow: var(--shadow-elevated); transform: translateY(-1px); }
+.bill-item.active { background: var(--primary-fixed); box-shadow: var(--shadow-elevated); }
+
+.bill-item-icon {
+  width: 40px; height: 40px; border-radius: var(--radius-md);
+  background: var(--secondary-container);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.bill-item-icon .material-symbols-outlined { font-size: 20px !important; color: var(--primary); }
+.bill-item.active .bill-item-icon { background: var(--primary); }
+.bill-item.active .bill-item-icon .material-symbols-outlined { color: white; }
+
+.bill-item-info { flex: 1; min-width: 0; }
+.bill-item-title {
+  font-size: 14px; font-weight: 700; color: var(--on-surface);
+  font-family: 'Manrope', sans-serif;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.bill-item-meta { font-size: 12px; color: var(--outline); margin-top: 3px; }
+.bill-item-date { font-size: 12px; color: var(--primary); margin-top: 3px; font-weight: 600; }
+
+.bill-item-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
+.bill-item-amount {
+  font-family: 'Manrope', sans-serif; font-size: 14px;
+  font-weight: 800; color: var(--primary);
+}
+
+/* Bill Detail */
+.bill-detail { min-height: 320px; }
+
+.bill-detail-header { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 24px; }
+.bill-detail-icon-wrap {
+  width: 52px; height: 52px; border-radius: var(--radius-md);
+  background: var(--secondary-container);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.bill-detail-icon-wrap .material-symbols-outlined { font-size: 26px !important; color: var(--primary); }
+.bill-detail-category { font-size: 12px; color: var(--outline); text-transform: uppercase; letter-spacing: 1px; font-weight: 700; margin-bottom: 4px; }
+.bill-detail-title { font-family: 'Manrope', sans-serif; font-size: 24px; font-weight: 800; color: var(--on-surface); }
+
+.bill-detail-meta {
+  display: flex; flex-wrap: wrap; gap: 24px;
+  padding-bottom: 20px; margin-bottom: 20px;
+  border-bottom: 1px solid var(--surface-container);
+}
+.bill-meta-item { display: flex; flex-direction: column; gap: 4px; }
+.bill-meta-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--outline); font-weight: 700; font-family: 'Manrope', sans-serif; }
+.bill-meta-val { font-size: 14px; font-weight: 600; color: var(--on-surface); font-family: 'Manrope', sans-serif; }
+.amount-val { font-size: 20px; color: var(--primary); }
+
+.bill-detail-notes {}
+.bill-notes-label { font-size: 12px; font-weight: 700; color: var(--on-surface-variant); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+.bill-detail-notes p { font-size: 15px; color: var(--on-surface-variant); line-height: 1.7; }
+
+@media (max-width: 1024px) { .bills-summary { grid-template-columns: repeat(2,1fr); } }
+@media (max-width: 900px) {
+  .bills-layout { grid-template-columns: 1fr; }
+  .bill-form-grid { grid-template-columns: 1fr; }
+  .bills-inner { padding: 24px 16px; }
+}

@@ -32,6 +32,9 @@ export default function Navbar() {
             <Link to="/reminders" className={`nav-link ${isActive('/reminders') ? 'active' : ''}`}>
               <span className="material-symbols-outlined">alarm</span>Reminders
             </Link>
+            <Link to="/bills" className={`nav-link ${isActive('/bills') ? 'active' : ''}`}>
+              <span className="material-symbols-outlined">receipt_long</span>Bills
+            </Link>
             <Link to="/emergency-profile" className={`nav-link ${isActive('/emergency-profile') ? 'active' : ''}`}>
               <span className="material-symbols-outlined">emergency</span>Emergency
             </Link>

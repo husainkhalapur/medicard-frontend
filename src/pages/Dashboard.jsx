@@ -24,6 +24,7 @@ export default function Dashboard() {
     { icon: 'folder_shared', label: 'Medical Records', desc: 'View & upload reports', to: '/medical-records', bg: 'var(--secondary-container)', color: 'var(--on-secondary-fixed)' },
     { icon: 'alarm', label: 'Pill Reminders', desc: 'Manage medication schedule', to: '/reminders', bg: 'var(--tertiary-fixed)', color: 'var(--on-tertiary-fixed)' },
     { icon: 'person', label: 'My Profile', desc: 'Edit personal information', to: '/profile', bg: 'var(--primary-fixed)', color: 'var(--on-primary-fixed)' },
+    { icon: 'receipt_long', label: 'Medical Bills', desc: 'Upload and view bills', to: '/bills', bg: '#dcfce7', color: '#166534' },
   ];
 
   return (
