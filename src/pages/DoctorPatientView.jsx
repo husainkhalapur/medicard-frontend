@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import DoctorNavbar from '../components/DoctorNavbar';
 import DoctorAPI from '../api/doctorAxios';
@@ -38,11 +38,7 @@ export default function DoctorPatientView() {
   const [interactionResult, setInteractionResult] = useState(null);
   const [interactionAcknowledged, setInteractionAcknowledged] = useState(false);
 
-  useEffect(() => {
-    fetchAll();
-  }, [uniqueId]);
-
-  const fetchAll = async () => {
+  const fetchAll = useCallback(async () => {
     setLoading(true);
     try {
       const [patientRes, recordsRes, prescRes] = await Promise.all([
@@ -58,7 +54,11 @@ export default function DoctorPatientView() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [uniqueId]);
+  
+  useEffect(() => {
+    fetchAll();
+  }, [fetchAll]);
 
   const showSuccess = (msg) => {
     setSuccess(msg);

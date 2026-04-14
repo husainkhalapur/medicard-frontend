@@ -202,9 +202,9 @@ export default function Landing() {
           </div>
           <p className="footer-copy">© 2024 MediCard Healthcare Platform. Secure & Encrypted.</p>
           <div className="footer-links">
-            <a href="#">Privacy Policy</a>
-            <a href="#">Terms of Service</a>
-            <a href="#">HIPAA Compliance</a>
+            <a href="/">Privacy Policy</a>
+            <a href="/">Terms of Service</a>
+            <a href="/">HIPAA Compliance</a>
           </div>
         </div>
       </footer>
