@@ -1,0 +1,225 @@
+.appt-page { min-height: 100vh; background: var(--surface); }
+.appt-inner { max-width: 1100px; margin: 0 auto; padding: 40px 32px; display: flex; flex-direction: column; gap: 24px; }
+
+.appt-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+
+/* Booking Panel */
+.booking-panel {
+  background: var(--surface-container-lowest);
+  border-radius: var(--radius-xl);
+  padding: 32px;
+  box-shadow: var(--shadow-elevated);
+  display: flex; flex-direction: column; gap: 32px;
+}
+
+.booking-step { display: flex; flex-direction: column; gap: 16px; }
+
+.step-label {
+  display: flex; align-items: center; gap: 12px;
+  font-family: 'Manrope', sans-serif; font-size: 16px; font-weight: 700;
+  color: var(--on-surface);
+}
+.step-num {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--primary); color: white;
+  font-size: 13px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Manrope', sans-serif; flex-shrink: 0;
+}
+
+/* Specialty filter */
+.spec-filter { display: flex; gap: 8px; flex-wrap: wrap; }
+.filter-btn {
+  padding: 6px 16px; border-radius: var(--radius-full);
+  border: none; background: var(--surface-container-high);
+  font-size: 13px; font-weight: 600; font-family: 'Manrope', sans-serif;
+  color: var(--on-surface-variant); cursor: pointer; transition: var(--transition);
+}
+.filter-btn:hover { background: var(--secondary-container); color: var(--on-secondary-fixed); }
+.filter-btn.active { background: var(--primary); color: white; }
+
+/* Doctors Grid */
+.doctors-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.no-doctors { grid-column: 1/-1; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 32px; color: var(--outline); }
+.no-doctors .material-symbols-outlined { font-size: 36px; }
+.no-doctors p { font-size: 14px; }
+
+.doctor-card {
+  background: var(--surface-container-low);
+  border-radius: var(--radius-lg); padding: 16px;
+  display: flex; align-items: center; gap: 12px;
+  cursor: pointer; transition: var(--transition);
+  border: 2px solid transparent; position: relative;
+}
+.doctor-card:hover { background: var(--surface-container-high); }
+.doctor-card.selected { border-color: var(--primary); background: var(--primary-fixed); }
+
+.doctor-card-avatar {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: var(--hero-gradient); color: white;
+  font-size: 18px; font-weight: 800; font-family: 'Manrope', sans-serif;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.doctor-card-name { font-size: 14px; font-weight: 700; color: var(--on-surface); font-family: 'Manrope', sans-serif; }
+.doctor-card-spec { font-size: 12px; color: var(--primary); font-weight: 600; margin-top: 2px; }
+.doctor-card-hosp { font-size: 12px; color: var(--outline); margin-top: 4px; display: flex; align-items: center; gap: 4px; }
+.doctor-selected-check { font-size: 20px !important; color: var(--primary); position: absolute; top: 12px; right: 12px; }
+
+/* Calendar */
+.booking-calendar-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.booking-calendar { background: var(--surface-container-low); border-radius: var(--radius-lg); padding: 20px; }
+
+.cal-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.cal-month-label { font-family: 'Manrope', sans-serif; font-size: 16px; font-weight: 700; color: var(--on-surface); }
+.cal-nav-btn {
+  width: 32px; height: 32px; border-radius: 50%; background: var(--surface-container-high);
+  border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: var(--transition);
+}
+.cal-nav-btn:hover { background: var(--secondary-container); }
+.cal-nav-btn .material-symbols-outlined { font-size: 20px !important; }
+
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+.cal-head { text-align: center; font-size: 11px; font-weight: 700; color: var(--outline); padding: 6px 0; text-transform: uppercase; letter-spacing: 0.5px; font-family: 'Manrope', sans-serif; }
+.cal-cell {
+  aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+  border-radius: var(--radius-md); font-size: 13px; font-weight: 600;
+  font-family: 'Manrope', sans-serif; transition: var(--transition);
+}
+.cal-cell.empty { cursor: default; }
+.cal-cell.past { color: var(--outline); cursor: not-allowed; opacity: 0.4; }
+.cal-cell.available { color: var(--on-surface); cursor: pointer; }
+.cal-cell.available:hover { background: var(--primary-fixed); color: var(--primary); }
+.cal-cell.selected { background: var(--primary) !important; color: white !important; }
+.cal-cell.today { color: var(--primary); font-weight: 800; }
+
+/* Time Slots */
+.time-slots-panel { background: var(--surface-container-low); border-radius: var(--radius-lg); padding: 20px; }
+.time-slots-title { font-family: 'Manrope', sans-serif; font-size: 14px; font-weight: 700; color: var(--on-surface); margin-bottom: 16px; }
+.time-slots-grid { display: flex; flex-direction: column; gap: 8px; }
+
+.time-slot-btn {
+  width: 100%; padding: 12px 16px; border-radius: var(--radius-full);
+  border: 1.5px solid var(--outline-variant);
+  background: var(--surface-container-lowest);
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 14px; font-weight: 600; font-family: 'Manrope', sans-serif;
+  color: var(--on-surface); cursor: pointer; transition: var(--transition);
+}
+.time-slot-btn:hover:not(:disabled) { border-color: var(--primary); background: var(--primary-fixed); }
+.time-slot-btn.selected { background: var(--primary); color: white; border-color: var(--primary); }
+.time-slot-btn.booked { opacity: 0.4; cursor: not-allowed; }
+.slot-status { font-size: 11px; font-weight: 700; }
+.avail-label { color: var(--primary); }
+.booked-label { color: var(--outline); }
+
+/* Details */
+.booking-details-row { display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap; }
+.type-toggle { display: flex; gap: 8px; }
+.type-btn {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 20px; border-radius: var(--radius-full);
+  border: 1.5px solid var(--outline-variant);
+  background: var(--surface-container-high);
+  font-size: 13px; font-weight: 600; font-family: 'Manrope', sans-serif;
+  color: var(--on-surface-variant); cursor: pointer; transition: var(--transition);
+}
+.type-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+.booking-summary {
+  background: var(--primary-fixed); border-radius: var(--radius-lg);
+  padding: 20px 24px; display: flex; flex-direction: column; gap: 10px;
+}
+.summary-row-item {
+  display: flex; align-items: center; gap: 12px;
+  font-size: 14px; color: var(--on-primary-fixed); font-weight: 500;
+}
+.summary-row-item .material-symbols-outlined { font-size: 18px !important; color: var(--primary); }
+
+.confirm-btn { align-self: flex-start; padding: 12px 32px !important; font-size: 15px !important; }
+
+/* Tabs */
+.appt-tabs { display: flex; gap: 8px; }
+.appt-tab {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 22px; background: var(--surface-container-lowest);
+  border: none; border-radius: var(--radius-full);
+  font-size: 14px; font-weight: 600; font-family: 'Manrope', sans-serif;
+  color: var(--on-surface-variant); cursor: pointer; transition: var(--transition);
+  box-shadow: var(--shadow-ambient);
+}
+.appt-tab:hover { background: var(--secondary-container); color: var(--on-secondary-fixed); }
+.appt-tab.active { background: var(--primary); color: white; box-shadow: 0 4px 16px rgba(0,71,141,0.2); }
+
+/* Appointment Cards */
+.appt-list { display: flex; flex-direction: column; gap: 14px; }
+.appt-card {
+  background: var(--surface-container-lowest);
+  border-radius: var(--radius-xl); padding: 24px 28px;
+  display: flex; align-items: flex-start; gap: 24px;
+  box-shadow: var(--shadow-ambient); transition: var(--transition);
+}
+.appt-card:hover { box-shadow: var(--shadow-elevated); }
+.appt-card.cancelled { opacity: 0.6; }
+
+.appt-card-left { display: flex; align-items: flex-start; gap: 16px; flex: 1; min-width: 0; }
+.appt-doctor-avatar {
+  width: 52px; height: 52px; border-radius: 50%;
+  background: linear-gradient(135deg, #394857, #51606f);
+  color: white; font-size: 20px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; font-family: 'Manrope', sans-serif;
+}
+.appt-card-info { flex: 1; min-width: 0; }
+.appt-doctor-name { font-size: 17px; font-weight: 700; color: var(--on-surface); font-family: 'Manrope', sans-serif; margin-bottom: 4px; }
+.appt-spec { margin-bottom: 4px; }
+.appt-hospital { font-size: 13px; color: var(--outline); }
+.appt-reason { font-size: 13px; color: var(--on-surface-variant); font-style: italic; margin-top: 6px; }
+
+.appt-card-center { display: flex; flex-direction: column; gap: 8px; min-width: 200px; }
+.appt-meta-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--on-surface-variant); }
+.appt-meta-item .material-symbols-outlined { font-size: 16px !important; color: var(--primary); }
+
+.appt-card-right { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; min-width: 120px; }
+.appt-notes {
+  display: flex; align-items: flex-start; gap: 6px;
+  font-size: 12px; color: var(--outline); line-height: 1.4;
+  background: var(--surface-container-low); padding: 8px 12px;
+  border-radius: var(--radius-md); margin-top: 4px; max-width: 200px;
+}
+
+@media (max-width: 900px) {
+  .doctors-grid { grid-template-columns: 1fr 1fr; }
+  .booking-calendar-row { grid-template-columns: 1fr; }
+  .appt-card { flex-direction: column; }
+  .appt-card-right { align-items: flex-start; }
+  .appt-inner { padding: 24px 16px; }
+}
+@media (max-width: 600px) {
+  .doctors-grid { grid-template-columns: 1fr; }
+}
+
+/* Pending notice */
+.pending-notice {
+  background: var(--tertiary-fixed);
+  border-radius: var(--radius-lg);
+  padding: 14px 20px;
+  display: flex; align-items: flex-start; gap: 12px;
+  font-size: 14px; color: var(--on-tertiary-fixed);
+}
+.pending-notice .material-symbols-outlined { font-size: 20px !important; flex-shrink: 0; margin-top: 1px; }
+
+/* Booking request note */
+.booking-request-note {
+  display: flex; align-items: flex-start; gap: 10px;
+  background: var(--secondary-container);
+  border-radius: var(--radius-md); padding: 12px 16px;
+  font-size: 13px; color: var(--on-secondary-fixed);
+  font-weight: 500;
+}
+.booking-request-note .material-symbols-outlined { flex-shrink: 0; color: var(--primary); }
+
+/* Pending status on card */
+.appt-card.pending { border-left: 4px solid var(--tertiary-fixed-dim); }
+.appt-card.rejected { border-left: 4px solid var(--error); opacity: 0.7; }
+.appt-pending-msg { font-size: 12px; color: var(--on-tertiary-fixed); font-weight: 600; background: var(--tertiary-fixed); padding: 4px 10px; border-radius: var(--radius-full); }

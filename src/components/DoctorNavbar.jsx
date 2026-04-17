@@ -28,6 +28,9 @@ export default function DoctorNavbar() {
             <span className="material-symbols-outlined" style={{fontSize:'17px'}}>dashboard</span>
             Dashboard
           </Link>
+          <Link to="/doctor/appointments" className={`doctor-nav-link ${isActive('/doctor/appointments') ? 'active' : ''}`}>
+            <span className="material-symbols-outlined">calendar_month</span>Appointments
+          </Link>
           <div className="navbar-divider" />
           <div className="navbar-user">
             <div className="doctor-avatar">{doctor?.full_name?.charAt(0).toUpperCase()}</div>

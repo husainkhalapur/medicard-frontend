@@ -38,6 +38,9 @@ export default function Navbar() {
             <Link to="/emergency-profile" className={`nav-link ${isActive('/emergency-profile') ? 'active' : ''}`}>
               <span className="material-symbols-outlined">emergency</span>Emergency
             </Link>
+            <Link to="/appointments" className={`nav-link ${isActive('/appointments') ? 'active' : ''}`}>
+              <span className="material-symbols-outlined">calendar_month</span>Appointments
+            </Link>
             <div className="navbar-divider" />
             <Link to="/profile" className="navbar-user">
               <div className="user-avatar">{user.full_name?.charAt(0).toUpperCase()}</div>

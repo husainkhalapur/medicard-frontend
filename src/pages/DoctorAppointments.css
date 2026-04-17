@@ -1,0 +1,132 @@
+.dr-appt-page { min-height: 100vh; background: var(--surface); }
+.dr-appt-inner { max-width: 1100px; margin: 0 auto; padding: 40px 32px; display: flex; flex-direction: column; gap: 24px; }
+
+.dr-appt-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.dr-appt-header-actions { display: flex; align-items: center; gap: 10px; }
+.date-filter { font-family: 'Inter', sans-serif; font-size: 14px; }
+
+/* Today Banner */
+.dr-today-banner {
+  background: linear-gradient(135deg, #0d1d2a, #394857);
+  border-radius: var(--radius-xl); padding: 18px 24px;
+  display: flex; align-items: center; gap: 16px;
+  box-shadow: 0 4px 16px rgba(13,29,42,0.2);
+}
+.dr-today-banner .material-symbols-outlined { font-size: 28px !important; color: var(--secondary-fixed-dim); flex-shrink: 0; }
+.today-title { font-family: 'Manrope', sans-serif; font-size: 16px; font-weight: 700; color: white; }
+.today-names { font-size: 13px; color: rgba(255,255,255,0.6); margin-top: 3px; }
+
+/* Tabs */
+.dr-appt-tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+.dr-appt-tab {
+  padding: 8px 18px; background: var(--surface-container-lowest);
+  border: none; border-radius: var(--radius-full);
+  font-size: 13px; font-weight: 600; font-family: 'Manrope', sans-serif;
+  color: var(--on-surface-variant); cursor: pointer; transition: var(--transition);
+  box-shadow: var(--shadow-ambient);
+}
+.dr-appt-tab:hover { background: var(--secondary-container); color: var(--on-secondary-fixed); }
+.dr-appt-tab.active { background: linear-gradient(135deg, #394857, #51606f); color: white; }
+
+/* Appointment Cards */
+.dr-appt-list { display: flex; flex-direction: column; gap: 14px; }
+.dr-appt-card {
+  background: var(--surface-container-lowest);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-ambient);
+  overflow: hidden; transition: var(--transition);
+  border-left: 4px solid var(--outline-variant);
+}
+.dr-appt-card:hover { box-shadow: var(--shadow-elevated); }
+.dr-appt-card.confirmed { border-left-color: var(--primary); }
+.dr-appt-card.completed { border-left-color: #16a34a; }
+.dr-appt-card.cancelled { border-left-color: var(--error); opacity: 0.65; }
+.dr-appt-card.no-show { border-left-color: var(--tertiary); }
+
+.dr-appt-main { display: flex; align-items: flex-start; gap: 20px; padding: 22px 24px; }
+
+/* Patient Info */
+.dr-appt-patient { display: flex; align-items: flex-start; gap: 14px; flex: 1; min-width: 0; }
+.dr-patient-avatar {
+  width: 48px; height: 48px; border-radius: 50%;
+  background: var(--hero-gradient); color: white;
+  font-size: 18px; font-weight: 800; font-family: 'Manrope', sans-serif;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.dr-patient-name { font-size: 16px; font-weight: 700; color: var(--on-surface); font-family: 'Manrope', sans-serif; }
+.dr-patient-id { font-size: 12px; color: var(--outline); font-family: monospace; margin-top: 2px; }
+
+/* Details */
+.dr-appt-details { display: flex; flex-direction: column; gap: 6px; min-width: 200px; }
+.dr-appt-meta { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--on-surface-variant); }
+.dr-appt-meta .material-symbols-outlined { font-size: 15px !important; color: var(--primary); }
+.dr-appt-reason { font-size: 12px; color: var(--outline); font-style: italic; margin-top: 4px; }
+
+/* Actions */
+.dr-appt-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; min-width: 160px; }
+
+.dr-appt-status {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 14px; border-radius: var(--radius-full);
+  font-size: 12px; font-weight: 700; font-family: 'Manrope', sans-serif;
+}
+.appt-status-confirmed { background: var(--primary-fixed); color: var(--primary); }
+.appt-status-completed { background: #dcfce7; color: #166534; }
+.appt-status-cancelled { background: var(--error-container); color: var(--on-error-container); }
+.appt-status-noshow { background: var(--tertiary-fixed); color: var(--on-tertiary-fixed); }
+
+.dr-action-btns { display: flex; flex-direction: column; gap: 6px; width: 100%; }
+.dr-action-btns .btn-primary,
+.dr-action-btns .btn-tonal { justify-content: center; width: 100%; }
+
+.dr-appt-footer-actions { display: flex; flex-direction: column; gap: 4px; width: 100%; }
+.view-patient-btn,
+.toggle-notes-btn {
+  display: flex; align-items: center; gap: 6px;
+  background: none; border: none; cursor: pointer;
+  font-size: 12px; font-weight: 600; font-family: 'Manrope', sans-serif;
+  color: var(--outline); padding: 4px 0; transition: var(--transition);
+  justify-content: flex-end;
+}
+.view-patient-btn:hover { color: var(--primary); }
+.toggle-notes-btn:hover { color: var(--secondary); }
+
+/* Notes Panel */
+.dr-notes-panel {
+  background: var(--surface-container-low);
+  border-top: 1px solid var(--surface-container);
+  padding: 18px 24px; display: flex; flex-direction: column; gap: 12px;
+}
+.dr-notes-textarea {
+  border-radius: var(--radius-md) var(--radius-md) 0 0 !important;
+  resize: vertical; min-height: 80px;
+}
+
+@media (max-width: 900px) {
+  .dr-appt-main { flex-direction: column; }
+  .dr-appt-actions { align-items: flex-start; }
+  .dr-action-btns { flex-direction: row; }
+  .dr-appt-inner { padding: 24px 16px; }
+}
+
+/* Pending badge on tab */
+.dr-appt-tab.has-badge { position: relative; }
+.tab-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--error); color: white;
+  width: 18px; height: 18px; border-radius: 50%;
+  font-size: 11px; font-weight: 800;
+  margin-left: 6px; font-family: 'Manrope', sans-serif;
+}
+
+/* Pending banner */
+.dr-pending-banner {
+  background: var(--tertiary-fixed);
+  border-radius: var(--radius-xl); padding: 16px 20px;
+  display: flex; align-items: center; gap: 14px;
+  font-size: 14px; color: var(--on-tertiary-fixed);
+}
+.dr-pending-banner .material-symbols-outlined { font-size: 24px !important; flex-shrink: 0; }
+
+/* Approve button */
+.approve-btn { font-size: 12px !important; padding: 7px 16px !important; justify-content: center; width: 100%; }

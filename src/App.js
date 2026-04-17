@@ -17,6 +17,10 @@ import EmergencyProfile from './pages/EmergencyProfile';
 import EmergencyPublic from './pages/EmergencyPublic';
 import MedicalRecords from './pages/MedicalRecords';
 import Prescriptions from './pages/Prescriptions';
+import Reminders from './pages/Reminders';
+import Bills from './pages/Bills';
+import Appointments from './pages/Appointments';
+import DoctorAppointments from './pages/DoctorAppointments';
 import './styles/global.css';
 
 // Patient route guards
@@ -69,6 +73,10 @@ function AppRoutes() {
       <Route path="/login" element={
         <PatientPublicRoute><Login /></PatientPublicRoute>
       } />
+      
+      {/* Doctor Appointments */}
+      <Route path="/appointments" element={<PatientProtectedRoute><Appointments /></PatientProtectedRoute>} />
+      <Route path="/doctor/appointments" element={<DoctorProtectedRoute><DoctorAppointments /></DoctorProtectedRoute>} />
 
       {/* Patient Protected */}
       <Route path="/dashboard" element={
@@ -102,9 +110,6 @@ function AppRoutes() {
       } />
       <Route path="/doctor/login" element={
         <DoctorPublicRoute><DoctorLogin /></DoctorPublicRoute>
-      } />
-      <Route path="/reminders" element={
-        <PatientProtectedRoute><Reminders /></PatientProtectedRoute>
       } />
 
       {/* Doctor Pending */}
