@@ -71,8 +71,18 @@ export default function MedicalRecords() {
   const filtered = filter === 'All' ? records : records.filter(r => r.category === filter);
 
   const categoryIcon = (cat) => {
-    const map = { General:<><span className="material-symbols-outlined">local_hospital</span></>, Cardiology:'<span className="material-symbols-outlined">favorite</span>', Orthopedic:'<span className="material-symbols-outlined">orthopedics</span>', Neurology:'<span className="material-symbols-outlined">neurology</span>',
-      Dermatology:'<span className="material-symbols-outlined">dermatology</span>', Ophthalmology:'<span className="material-symbols-outlined">visibility</span>️', Dental:'<span className="material-symbols-outlined">dentistry</span>', Radiology:'<span className="material-symbols-outlined">biotech</span>', Pathology:'<span className="material-symbols-outlined">science</span>', Other:<><span className="material-symbols-outlined">description</span></> };
+    const map = {
+      General:      <span className="material-symbols-outlined">local_hospital</span>,
+      Cardiology:   <span className="material-symbols-outlined">favorite</span>,
+      Orthopedic:   <span className="material-symbols-outlined">orthopedics</span>,
+      Neurology:    <span className="material-symbols-outlined">neurology</span>,
+      Dermatology:  <span className="material-symbols-outlined">dermatology</span>,
+      Ophthalmology:<span className="material-symbols-outlined">visibility</span>,
+      Dental:       <span className="material-symbols-outlined">dentistry</span>,
+      Radiology:    <span className="material-symbols-outlined">biotech</span>,
+      Pathology:    <span className="material-symbols-outlined">science</span>,
+      Other:        <span className="material-symbols-outlined">description</span>,
+    };
     return map[cat] || <><span className="material-symbols-outlined">description</span></>;
   };
 
