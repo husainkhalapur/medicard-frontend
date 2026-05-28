@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import API from '../api/axios';
+import Select from '../components/Select';
 import './Auth.css';
 
 export default function Register() {
@@ -13,7 +14,8 @@ export default function Register() {
 
   const [form, setForm] = useState({
     full_name: '', email: '', password: '', confirm_password: '',
-    phone: '', date_of_birth: '', blood_group: ''
+    phone: '', date_of_birth: '', blood_group: '',
+    gender: '', address: '', pincode: ''
   });
 
   const handleChange = (e) => { setForm({ ...form, [e.target.name]: e.target.value }); setError(''); };
@@ -26,11 +28,16 @@ export default function Register() {
   };
 
   const handleSubmit = async () => {
+    if (form.pincode && !/^\d{6}$/.test(form.pincode)) {
+      setError('Pincode must be exactly 6 digits.'); return;
+    }
     setLoading(true); setError('');
     try {
       const res = await API.post('/auth/register', {
         full_name: form.full_name, email: form.email, password: form.password,
-        phone: form.phone, date_of_birth: form.date_of_birth || null, blood_group: form.blood_group
+        phone: form.phone, date_of_birth: form.date_of_birth || null,
+        blood_group: form.blood_group, gender: form.gender || null,
+        address: form.address || null, pincode: form.pincode || null
       });
       login(res.data.user, res.data.token);
       navigate('/dashboard');
@@ -71,7 +78,7 @@ export default function Register() {
           </div>
 
           <h1 className="auth-title">{step === 1 ? 'Create account' : 'Medical details'}</h1>
-          <p className="auth-sub">{step === 1 ? 'Step 1 of 2 — Basic information' : 'Step 2 of 2 — Health information'}</p>
+          <p className="auth-sub">{step === 1 ? 'Step 1 of 2 — Basic information' : 'Step 2 of 2 — Health & location'}</p>
 
           {error && <div className="auth-error">{error}</div>}
 
@@ -105,12 +112,35 @@ export default function Register() {
                 <label className="form-label">Date of Birth</label>
                 <input className="form-input" name="date_of_birth" type="date" value={form.date_of_birth} onChange={handleChange} />
               </div>
+              <div className="auth-fields-row">
+                <div className="form-group">
+                  <label className="form-label">Blood Group</label>
+                  <Select
+                    name="blood_group"
+                    value={form.blood_group}
+                    onChange={handleChange}
+                    placeholder="Select"
+                    options={['A+','A-','B+','B-','AB+','AB-','O+','O-']}
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Gender</label>
+                  <Select
+                    name="gender"
+                    value={form.gender}
+                    onChange={handleChange}
+                    placeholder="Select"
+                    options={['Male','Female','Other','Prefer not to say']}
+                  />
+                </div>
+              </div>
               <div className="form-group">
-                <label className="form-label">Blood Group</label>
-                <select className="form-input" name="blood_group" value={form.blood_group} onChange={handleChange}>
-                  <option value="">Select blood group</option>
-                  {['A+','A-','B+','B-','AB+','AB-','O+','O-'].map(bg => <option key={bg} value={bg}>{bg}</option>)}
-                </select>
+                <label className="form-label">Address</label>
+                <input className="form-input" name="address" placeholder="House no., Street, Area, City" value={form.address} onChange={handleChange} />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Pincode</label>
+                <input className="form-input" name="pincode" placeholder="6-digit pincode" maxLength={6} value={form.pincode} onChange={handleChange} />
               </div>
               <div className="auth-btn-row">
                 <button className="btn-outline" onClick={() => setStep(1)}>← Back</button>
