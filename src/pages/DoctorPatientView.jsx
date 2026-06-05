@@ -197,9 +197,13 @@ export default function DoctorPatientView() {
           <div className="dpv-identity-info">
             <h1 className="dpv-name">{patient?.full_name}</h1>
             <div className="dpv-meta-row">
-              <span className="dpv-id">🪪 {patient?.unique_id}</span>
+                <span className="dpv-id">
+                <span className="material-symbols-outlined">badge</span> {patient?.unique_id}
+              </span>
               {patient?.blood_group && (
-                <span className="badge badge-green">🩸 {patient?.blood_group}</span>
+                <span className="badge badge-green">
+                  <span className="material-symbols-outlined">water_drop</span> {patient?.blood_group}
+                </span>
               )}
               {patient?.date_of_birth && (
                 <span className="dpv-dob">
