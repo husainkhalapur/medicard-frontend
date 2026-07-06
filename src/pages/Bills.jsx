@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import API from '../api/axios';
 import Navbar from '../components/Navbar';
+import { toDDMMYYYY } from '../utils/dateFormat';
 import './Bills.css';
 
 const CATEGORIES = [
@@ -35,7 +36,7 @@ export default function Bills() {
 
   const [form, setForm] = useState({
     title: '', provider: '', bill_date: '',
-    amount: '', category: '', notes: ''
+    amount: '', category: '', notes: '', bill_number: ''
   });
 
   useEffect(() => { fetchBills(); }, []);
@@ -66,7 +67,7 @@ export default function Bills() {
       });
 
       setSuccess('Bill added successfully!');
-      setForm({ title: '', provider: '', bill_date: '', amount: '', category: '', notes: '' });
+      setForm({ title: '', provider: '', bill_date: '', amount: '', category: '', notes: '', bill_number: '' });
       setFile(null);
       setShowForm(false);
       fetchBills();
@@ -155,6 +156,12 @@ export default function Bills() {
                 <input className="form-input" name="provider"
                   placeholder="e.g. Apollo Hospital"
                   value={form.provider} onChange={handleChange} />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Bill Number <span className="field-hint">(optional)</span></label>
+                <input className="form-input" name="bill_number"
+                  placeholder="e.g. INV-2026-00458"
+                  value={form.bill_number} onChange={handleChange} />
               </div>
               <div className="form-group">
                 <label className="form-label">Category</label>
@@ -249,12 +256,11 @@ export default function Bills() {
                     <div className="bill-item-meta">
                       {bill.category || 'Uncategorized'}
                       {bill.provider ? ` · ${bill.provider}` : ''}
+                      {bill.bill_number ? ` · #${bill.bill_number}` : ''}
                     </div>
                     {bill.bill_date && (
                       <div className="bill-item-date">
-                        {new Date(bill.bill_date).toLocaleDateString('en-IN', {
-                          day: 'numeric', month: 'short', year: 'numeric'
-                        })}
+                        {toDDMMYYYY(bill.bill_date)}
                       </div>
                     )}
                   </div>
@@ -285,6 +291,12 @@ export default function Bills() {
                   </div>
 
                   <div className="bill-detail-meta">
+                    {selectedBill.bill_number && (
+                      <div className="bill-meta-item">
+                        <div className="bill-meta-label">Bill Number</div>
+                        <div className="bill-meta-val">{selectedBill.bill_number}</div>
+                      </div>
+                    )}
                     {selectedBill.amount && (
                       <div className="bill-meta-item">
                         <div className="bill-meta-label">Amount</div>
@@ -301,18 +313,14 @@ export default function Bills() {
                       <div className="bill-meta-item">
                         <div className="bill-meta-label">Date</div>
                         <div className="bill-meta-val">
-                          {new Date(selectedBill.bill_date).toLocaleDateString('en-IN', {
-                            day: 'numeric', month: 'long', year: 'numeric'
-                          })}
+                          {toDDMMYYYY(selectedBill.bill_date)}
                         </div>
                       </div>
                     )}
                     <div className="bill-meta-item">
                       <div className="bill-meta-label">Added</div>
                       <div className="bill-meta-val">
-                        {new Date(selectedBill.created_at).toLocaleDateString('en-IN', {
-                          day: 'numeric', month: 'short', year: 'numeric'
-                        })}
+                        {toDDMMYYYY(selectedBill.created_at)}
                       </div>
                     </div>
                   </div>

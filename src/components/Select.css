@@ -1,0 +1,130 @@
+/* ── Custom Select — matches .form-input filled-field style ── */
+
+.mc-select {
+  position: relative;
+  width: 100%;
+}
+
+/* Trigger inherits .form-input styles from global.css;
+   we extend it to flex so the arrow sits on the right. */
+.mc-select__trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  /* override button resets */
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  border-bottom: 2px solid transparent;
+  transition: var(--transition);
+  user-select: none;
+}
+
+.mc-select__trigger:focus {
+  outline: none;
+  border-bottom-color: var(--primary);
+  background: var(--surface-container-high);
+}
+
+.mc-select__trigger.focused {
+  border-bottom-color: var(--primary);
+  background: var(--surface-container-high);
+}
+
+.mc-select__placeholder {
+  color: var(--outline);
+  font-size: 15px;
+}
+
+.mc-select__val {
+  color: var(--on-surface);
+  font-size: 15px;
+}
+
+.mc-select__arrow {
+  font-size: 20px !important;
+  color: var(--outline);
+  flex-shrink: 0;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mc-select__arrow--up {
+  transform: rotate(180deg);
+}
+
+/* Dropdown menu */
+.mc-select__menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  width: 100%;
+  background: var(--surface-container-lowest);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-elevated);
+  border: 1px solid var(--outline-variant);
+  list-style: none;
+  z-index: 200;
+  overflow: hidden;
+  animation: selectOpen 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+@keyframes selectOpen {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Scrollbar inside menu */
+.mc-select__menu::-webkit-scrollbar { width: 4px; }
+.mc-select__menu::-webkit-scrollbar-thumb { background: var(--outline-variant); border-radius: 2px; }
+
+/* Options */
+.mc-select__option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 16px;
+  font-size: 14px;
+  font-family: 'Inter', sans-serif;
+  color: var(--on-surface);
+  cursor: pointer;
+  transition: background 0.15s;
+  position: relative;
+}
+
+.mc-select__option:hover {
+  background: var(--surface-container);
+}
+
+.mc-select__option--selected {
+  background: var(--primary-fixed);
+  color: var(--on-primary-fixed);
+  font-weight: 600;
+}
+
+.mc-select__option--selected:hover {
+  background: var(--primary-fixed-dim);
+}
+
+.mc-select__option--empty {
+  color: var(--outline);
+  font-style: italic;
+  border-bottom: 1px solid var(--surface-container-high);
+}
+
+.mc-select__check {
+  font-size: 16px !important;
+  color: var(--primary);
+  flex-shrink: 0;
+}
+
+/* Disabled state */
+.mc-select--disabled .mc-select__trigger {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

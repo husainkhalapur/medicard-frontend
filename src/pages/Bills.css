@@ -1,4 +1,4 @@
-.bills-page { min-height: 100vh; background: var(--surface); }
+.bills-page { min-height: 100vh; background: var(--surface); margin-left: var(--sidebar-width, 0px); transition: margin-left 0.22s ease; }
 .bills-inner { max-width: 1280px; margin: 0 auto; padding: 40px 32px; display: flex; flex-direction: column; gap: 24px; }
 
 .bills-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }

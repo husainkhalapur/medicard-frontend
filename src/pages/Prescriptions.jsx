@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import API from '../api/axios';
 import Navbar from '../components/Navbar';
+import { toDDMMYYYY } from '../utils/dateFormat';
 import './Prescriptions.css';
 
 export default function Prescriptions() {
@@ -131,13 +132,13 @@ export default function Prescriptions() {
                           {p.start_date && (
                             <div className="presc-meta-row">
                               <span><span className="material-symbols-outlined">calendar_today</span></span>
-                              <span>Started: {new Date(p.start_date).toLocaleDateString('en-IN', {day:'numeric',month:'short',year:'numeric'})}</span>
+                              <span>Started: {toDDMMYYYY(p.start_date)}</span>
                             </div>
                           )}
                           {p.end_date && (
                             <div className="presc-meta-row">
                               <span><span className="material-symbols-outlined">flag</span></span>
-                              <span>Ends: {new Date(p.end_date).toLocaleDateString('en-IN', {day:'numeric',month:'short',year:'numeric'})}</span>
+                              <span>Ends: {toDDMMYYYY(p.end_date)}</span>
                             </div>
                           )}
                         </div>
@@ -172,7 +173,7 @@ export default function Prescriptions() {
                         {p.end_date && (
                           <div className="presc-meta-row">
                             <span><span className="material-symbols-outlined" style={{color:"#166534",fontSize:"18px"}}>check_circle</span></span>
-                            <span>Completed: {new Date(p.end_date).toLocaleDateString('en-IN', {day:'numeric',month:'short',year:'numeric'})}</span>
+                            <span>Completed: {toDDMMYYYY(p.end_date)}</span>
                           </div>
                         )}
                       </div>

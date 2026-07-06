@@ -1,4 +1,4 @@
-.appt-page { min-height: 100vh; background: var(--surface); }
+.appt-page { min-height: 100vh; background: var(--surface); margin-left: var(--sidebar-width, 0px); transition: margin-left 0.22s ease; }
 .appt-inner { max-width: 1100px; margin: 0 auto; padding: 40px 32px; display: flex; flex-direction: column; gap: 24px; }
 
 .appt-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
@@ -26,6 +26,29 @@
   display: flex; align-items: center; justify-content: center;
   font-family: 'Manrope', sans-serif; flex-shrink: 0;
 }
+
+/* Doctor search bar */
+.doctor-search-bar {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--surface-container-high);
+  border-radius: var(--radius-full);
+  padding: 10px 18px;
+  border: 1.5px solid transparent;
+  transition: var(--transition);
+}
+.doctor-search-bar:focus-within { border-color: var(--primary); background: var(--surface-container-lowest); }
+.doctor-search-bar .material-symbols-outlined { font-size: 20px !important; color: var(--outline); flex-shrink: 0; }
+.doctor-search-input {
+  flex: 1; border: none; outline: none; background: transparent;
+  font-size: 14px; font-family: 'Inter', sans-serif; color: var(--on-surface);
+}
+.doctor-search-input::placeholder { color: var(--outline); }
+.doctor-search-clear {
+  background: none; border: none; cursor: pointer; display: flex; align-items: center;
+  color: var(--outline); padding: 2px; flex-shrink: 0; transition: var(--transition);
+}
+.doctor-search-clear:hover { color: var(--error); }
+.doctor-search-clear .material-symbols-outlined { font-size: 18px !important; }
 
 /* Specialty filter */
 .spec-filter { display: flex; gap: 8px; flex-wrap: wrap; }

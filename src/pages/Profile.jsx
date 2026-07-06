@@ -81,7 +81,7 @@ export default function Profile() {
             <div className="avatar-name">{user?.full_name}</div>
             <div className="avatar-email">{user?.email}</div>
             <span className="badge badge-green" style={{fontSize:'14px', padding:'6px 16px', marginTop:'8px'}}>
-              🪪 {user?.unique_id}
+               {user?.unique_id}
             </span>
             <div className="avatar-note">
               This is your unique MediCard ID. It is linked to your QR code and NFC chip.

@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import API from '../api/axios';
 import Navbar from '../components/Navbar';
+import NotesDisplay from '../components/NotesDisplay';
+import { toDDMMYYYY } from '../utils/dateFormat';
 import './MedicalRecords.css';
 
 const CATEGORIES = ['General', 'Cardiology', 'Orthopedic', 'Neurology', 'Dermatology', 'Ophthalmology', 'Dental', 'Radiology', 'Pathology', 'Other'];
@@ -71,8 +73,18 @@ export default function MedicalRecords() {
   const filtered = filter === 'All' ? records : records.filter(r => r.category === filter);
 
   const categoryIcon = (cat) => {
-    const map = { General:<><span className="material-symbols-outlined">local_hospital</span></>, Cardiology:'<span className="material-symbols-outlined">favorite</span>', Orthopedic:'<span className="material-symbols-outlined">orthopedics</span>', Neurology:'<span className="material-symbols-outlined">neurology</span>',
-      Dermatology:'<span className="material-symbols-outlined">dermatology</span>', Ophthalmology:'<span className="material-symbols-outlined">visibility</span>️', Dental:'<span className="material-symbols-outlined">dentistry</span>', Radiology:'<span className="material-symbols-outlined">biotech</span>', Pathology:'<span className="material-symbols-outlined">science</span>', Other:<><span className="material-symbols-outlined">description</span></> };
+    const map = {
+      General:      <span className="material-symbols-outlined">local_hospital</span>,
+      Cardiology:   <span className="material-symbols-outlined">favorite</span>,
+      Orthopedic:   <span className="material-symbols-outlined">orthopedics</span>,
+      Neurology:    <span className="material-symbols-outlined">neurology</span>,
+      Dermatology:  <span className="material-symbols-outlined">dermatology</span>,
+      Ophthalmology:<span className="material-symbols-outlined">visibility</span>,
+      Dental:       <span className="material-symbols-outlined">dentistry</span>,
+      Radiology:    <span className="material-symbols-outlined">biotech</span>,
+      Pathology:    <span className="material-symbols-outlined">science</span>,
+      Other:        <span className="material-symbols-outlined">description</span>,
+    };
     return map[cat] || <><span className="material-symbols-outlined">description</span></>;
   };
 
@@ -183,7 +195,7 @@ export default function MedicalRecords() {
                     </div>
                     {record.visit_date && (
                       <div className="record-item-date">
-                        {new Date(record.visit_date).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'})}
+                        {toDDMMYYYY(record.visit_date)}
                       </div>
                     )}
                   </div>
@@ -216,14 +228,14 @@ export default function MedicalRecords() {
                       <div className="detail-meta-item">
                         <span className="meta-label">Date</span>
                         <span className="meta-value">
-                          {new Date(selectedRecord.visit_date).toLocaleDateString('en-IN', {day:'numeric', month:'long', year:'numeric'})}
+                          {toDDMMYYYY(selectedRecord.visit_date)}
                         </span>
                       </div>
                     )}
                     <div className="detail-meta-item">
                       <span className="meta-label">Added</span>
                       <span className="meta-value">
-                        {new Date(selectedRecord.created_at).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'})}
+                        {toDDMMYYYY(selectedRecord.created_at)}
                       </span>
                     </div>
                   </div>
@@ -231,7 +243,7 @@ export default function MedicalRecords() {
                   {selectedRecord.notes && (
                     <div className="detail-notes">
                       <div className="detail-notes-label">Notes</div>
-                      <p>{selectedRecord.notes}</p>
+                      <NotesDisplay notes={selectedRecord.notes} />
                     </div>
                   )}
 

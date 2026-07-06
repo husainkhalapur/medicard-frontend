@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import Navbar from '../components/Navbar';
 import API from '../api/axios';
+import { toDDMMYYYY } from '../utils/dateFormat';
 import './Reminders.css';
 
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -349,11 +350,7 @@ export default function Reminders() {
             {/* Day Detail */}
             <div className="card day-detail-card">
               <h2 className="day-detail-title">
-                {selectedDate.toLocaleDateString('en-IN', {
-                  weekday: 'long',
-                  day: 'numeric',
-                  month: 'long'
-                })}
+                {toDDMMYYYY(selectedDate)}
               </h2>
 
               {selectedDateLogs.length === 0 ? (

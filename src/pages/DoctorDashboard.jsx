@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDoctorAuth } from '../context/DoctorAuthContext';
 import DoctorNavbar from '../components/DoctorNavbar';
 import DoctorAPI from '../api/doctorAxios';
+import { toDDMMYYYY } from '../utils/dateFormat';
 import './DoctorDashboard.css';
 
 export default function DoctorDashboard() {
@@ -138,9 +139,7 @@ export default function DoctorDashboard() {
                     <span className="badge badge-green">{p.blood_group}</span>
                   )}
                   <div className="recent-patient-time">
-                    {new Date(p.accessed_at).toLocaleDateString('en-IN', {
-                      day: 'numeric', month: 'short', year: 'numeric'
-                    })}
+                    {toDDMMYYYY(p.accessed_at)}
                   </div>
                   <div className="recent-arrow">→</div>
                 </div>

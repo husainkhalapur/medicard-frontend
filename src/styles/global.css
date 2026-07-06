@@ -2,18 +2,20 @@
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
 
 :root {
-  --primary: #00478d;
-  --primary-container: #005eb8;
-  --primary-fixed: #d6e3ff;
-  --primary-fixed-dim: #a9c7ff;
-  --on-primary: #ffffff;
-  --on-primary-fixed: #001b3d;
-  --on-primary-container: #c8daff;
-  --secondary: #51606f;
-  --secondary-container: #d4e4f6;
-  --on-secondary: #ffffff;
-  --on-secondary-fixed: #0d1d2a;
-  --on-secondary-container: #576675;
+  --primary:                  #0a3d2e;
+  --primary-container:        #1a6b4a;
+  --primary-fixed:            #e8f5f0;
+  --primary-fixed-dim:        #a8d5c2;
+  --on-primary:               #ffffff;
+  --on-primary-fixed:         #0a3d2e;
+  --on-primary-container:     #d4ede5;
+  --secondary:                #2d6a4f;
+  --secondary-container:      #d4ede5;
+  --secondary-fixed:          #d4ede5;
+  --secondary-fixed-dim:      #a8d5c2;
+  --on-secondary:             #ffffff;
+  --on-secondary-fixed:       #0a3d2e;
+  --on-secondary-container:   #1a4d37;
   --tertiary: #793100;
   --tertiary-fixed: #ffdbcb;
   --tertiary-fixed-dim: #ffb691;
@@ -49,7 +51,7 @@
   --shadow-ambient: 0 2px 12px rgba(25,28,30,0.06);
   --shadow-elevated: 0 8px 32px rgba(25,28,30,0.10);
   --transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
-  --hero-gradient: linear-gradient(135deg, #00478d 0%, #005eb8 100%);
+  --hero-gradient: linear-gradient(135deg, #0a3d2e 0%, #1a6b4a 100%);
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }

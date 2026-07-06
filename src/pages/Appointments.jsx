@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import API from '../api/axios';
 import Navbar from '../components/Navbar';
+import { toDDMMYYYY } from '../utils/dateFormat';
 import './Appointments.css';
 
 const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
@@ -41,6 +42,7 @@ export default function Appointments() {
   const [error, setError] = useState('');
 
   const [doctors, setDoctors] = useState([]);
+  const [doctorSearch, setDoctorSearch] = useState('');
   const [selectedSpec, setSelectedSpec] = useState('All');
   const [selectedDoctor, setSelectedDoctor] = useState(null);
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -123,6 +125,14 @@ export default function Appointments() {
     setReason(''); setApptType('in-person');
   };
 
+  const filteredDoctors = doctors.filter(d => {
+    const q = doctorSearch.trim().toLowerCase();
+    if (!q) return true;
+    return d.full_name?.toLowerCase().includes(q)
+      || d.specialization?.toLowerCase().includes(q)
+      || d.hospital_name?.toLowerCase().includes(q);
+  });
+
   const getDaysInMonth = (d) => new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
   const getFirstDay = (d) => new Date(d.getFullYear(), d.getMonth(), 1).getDay();
   const prevMonth = () => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
@@ -145,17 +155,21 @@ export default function Appointments() {
     return t.getDate() === day && t.getMonth() === currentDate.getMonth() && t.getFullYear() === currentDate.getFullYear();
   };
 
+  const todayStr = new Date().toISOString().split('T')[0];
+  const apptDateStr = (d) => (d?.split ? d : new Date(d).toISOString()).split('T')[0];
+
+  const pending = appointments.filter(a =>
+    a.status === 'pending' && apptDateStr(a.appointment_date) >= todayStr
+  );
   const upcoming = appointments.filter(a =>
-    ['pending', 'confirmed'].includes(a.status) && new Date(a.appointment_date) >= new Date()
+    a.status === 'confirmed' && apptDateStr(a.appointment_date) >= todayStr
   );
   const past = appointments.filter(a =>
-    !['pending', 'confirmed'].includes(a.status) || new Date(a.appointment_date) < new Date()
+    !['pending', 'confirmed'].includes(a.status) || apptDateStr(a.appointment_date) < todayStr
   );
-  const displayed = tab === 'upcoming' ? upcoming : past;
+  const displayed = tab === 'upcoming' ? upcoming : tab === 'pending' ? pending : past;
 
-  const formatDate = (d) => new Date(d).toLocaleDateString('en-IN', {
-    weekday:'short', day:'numeric', month:'long', year:'numeric'
-  });
+  const formatDate = (d) => toDDMMYYYY(d);
 
   return (
     <div className="appt-page">
@@ -177,13 +191,17 @@ export default function Appointments() {
         {error && <div className="error-banner fade-up"><span className="material-symbols-outlined" style={{fontSize:'18px'}}>warning</span>{error}</div>}
 
         {/* Pending notice */}
-        {upcoming.filter(a => a.status === 'pending').length > 0 && (
+        {pending.length > 0 && tab !== 'pending' && (
           <div className="pending-notice fade-up">
             <span className="material-symbols-outlined">pending</span>
             <div>
-              <strong>{upcoming.filter(a => a.status === 'pending').length} appointment request{upcoming.filter(a => a.status === 'pending').length > 1 ? 's' : ''} awaiting doctor approval.</strong>
+              <strong>{pending.length} appointment request{pending.length > 1 ? 's' : ''} awaiting doctor approval.</strong>
               <span> You will see the status update once the doctor responds.</span>
             </div>
+            <button className="btn-primary" style={{fontSize:'13px', padding:'8px 20px', marginLeft:'auto', flexShrink:0}}
+              onClick={() => setTab('pending')}>
+              View
+            </button>
           </div>
         )}
 
@@ -195,6 +213,17 @@ export default function Appointments() {
             {/* Step 1 */}
             <div className="booking-step">
               <div className="step-label"><div className="step-num">1</div><span>Select a Doctor</span></div>
+              <div className="doctor-search-bar">
+                <span className="material-symbols-outlined">search</span>
+                <input type="text" className="doctor-search-input"
+                  placeholder="Search by doctor name, specialty or hospital..."
+                  value={doctorSearch} onChange={e => setDoctorSearch(e.target.value)} />
+                {doctorSearch && (
+                  <button className="doctor-search-clear" onClick={() => setDoctorSearch('')}>
+                    <span className="material-symbols-outlined">close</span>
+                  </button>
+                )}
+              </div>
               <div className="spec-filter">
                 {SPECIALIZATIONS.map(s => (
                   <button key={s} className={`filter-btn ${selectedSpec === s ? 'active' : ''}`}
@@ -209,7 +238,12 @@ export default function Appointments() {
                     <span className="material-symbols-outlined">stethoscope</span>
                     <p>No verified doctors found for this specialty.</p>
                   </div>
-                ) : doctors.map(doc => (
+                ) : filteredDoctors.length === 0 ? (
+                  <div className="no-doctors">
+                    <span className="material-symbols-outlined">search_off</span>
+                    <p>No doctors match "{doctorSearch}".</p>
+                  </div>
+                ) : filteredDoctors.map(doc => (
                   <div key={doc.id}
                     className={`doctor-card ${selectedDoctor?.id === doc.id ? 'selected' : ''}`}
                     onClick={() => { setSelectedDoctor(doc); setSelectedDate(null); setSlots([]); setSelectedSlot(null); }}>
@@ -265,7 +299,7 @@ export default function Appointments() {
                   {selectedDate && (
                     <div className="time-slots-panel">
                       <div className="time-slots-title">
-                        {selectedDate.toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'short' })}
+                        {toDDMMYYYY(selectedDate)}
                       </div>
                       {slots.length === 0 ? (
                         <div style={{color:'var(--outline)', fontSize:'14px', padding:'16px 0'}}>Loading slots...</div>
@@ -352,6 +386,10 @@ export default function Appointments() {
             <span className="material-symbols-outlined" style={{fontSize:'17px'}}>event_available</span>
             Upcoming ({upcoming.length})
           </button>
+          <button className={`appt-tab ${tab === 'pending' ? 'active' : ''}`} onClick={() => setTab('pending')}>
+            <span className="material-symbols-outlined" style={{fontSize:'17px'}}>pending</span>
+            Pending ({pending.length})
+          </button>
           <button className={`appt-tab ${tab === 'past' ? 'active' : ''}`} onClick={() => setTab('past')}>
             <span className="material-symbols-outlined" style={{fontSize:'17px'}}>history</span>
             Past & Cancelled ({past.length})
@@ -365,8 +403,8 @@ export default function Appointments() {
           <div className="card">
             <div className="empty-state">
               <span className="material-symbols-outlined empty-icon">calendar_month</span>
-              <p>{tab === 'upcoming' ? 'No upcoming appointments.' : 'No past appointments.'}</p>
-              <span>{tab === 'upcoming' ? 'Request your first appointment using the button above.' : 'Your completed appointments will appear here.'}</span>
+              <p>{tab === 'upcoming' ? 'No upcoming appointments.' : tab === 'pending' ? 'No pending requests.' : 'No past appointments.'}</p>
+              <span>{tab === 'upcoming' ? 'Request your first appointment using the button above.' : tab === 'pending' ? 'Appointment requests awaiting doctor approval will appear here.' : 'Your completed appointments will appear here.'}</span>
             </div>
           </div>
         ) : (

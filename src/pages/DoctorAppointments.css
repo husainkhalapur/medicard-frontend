@@ -130,3 +130,41 @@
 
 /* Approve button */
 .approve-btn { font-size: 12px !important; padding: 7px 16px !important; justify-content: center; width: 100%; }
+
+/* Doctor-initiated booking panel */
+.dr-create-panel { display: flex; flex-direction: column; gap: 20px; }
+.dr-create-grid {
+  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;
+}
+@media (max-width: 700px) { .dr-create-grid { grid-template-columns: 1fr; } }
+
+.dr-create-slots { display: flex; flex-direction: column; gap: 10px; }
+.dr-create-slots .time-slots-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px;
+}
+
+.type-toggle { display: flex; gap: 8px; }
+.type-btn {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 20px; border-radius: var(--radius-full);
+  border: 1.5px solid var(--outline-variant);
+  background: var(--surface-container-high);
+  font-size: 13px; font-weight: 600; font-family: 'Manrope', sans-serif;
+  color: var(--on-surface-variant); cursor: pointer; transition: var(--transition);
+}
+.type-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+.time-slot-btn {
+  width: 100%; padding: 10px 14px; border-radius: var(--radius-full);
+  border: 1.5px solid var(--outline-variant);
+  background: var(--surface-container-lowest);
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 13px; font-weight: 600; font-family: 'Manrope', sans-serif;
+  color: var(--on-surface); cursor: pointer; transition: var(--transition);
+}
+.time-slot-btn:hover:not(:disabled) { border-color: var(--primary); background: var(--primary-fixed); }
+.time-slot-btn.selected { background: var(--primary); color: white; border-color: var(--primary); }
+.time-slot-btn.booked { opacity: 0.4; cursor: not-allowed; }
+.slot-status { font-size: 11px; font-weight: 700; }
+.avail-label { color: var(--primary); }
+.booked-label { color: var(--outline); }

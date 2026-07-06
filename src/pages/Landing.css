@@ -1,4 +1,4 @@
-.landing { min-height: 100vh; }
+.landing { min-height: 100vh; margin-left: var(--sidebar-width, 0px); transition: margin-left 0.22s ease; }
 
 /* Hero */
 .hero {

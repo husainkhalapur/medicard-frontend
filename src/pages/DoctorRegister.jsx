@@ -24,6 +24,13 @@ export default function DoctorRegister() {
     phone: '', specialization: '', license_number: '', hospital_name: ''
   });
 
+  // OTP step
+  const [otp, setOtp] = useState('');
+  const [otpPhone, setOtpPhone] = useState('');
+  const [verifying, setVerifying] = useState(false);
+  const [resending, setResending] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
+
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
     setError('');
@@ -46,6 +53,16 @@ export default function DoctorRegister() {
     setStep(2);
   };
 
+  const startResendCooldown = () => {
+    setResendCooldown(30);
+    const interval = setInterval(() => {
+      setResendCooldown(prev => {
+        if (prev <= 1) { clearInterval(interval); return 0; }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
   const handleSubmit = async () => {
     if (!form.phone || !form.specialization || !form.license_number || !form.hospital_name) {
       setError('Please fill in all required fields.');
@@ -54,7 +71,7 @@ export default function DoctorRegister() {
     setLoading(true);
     setError('');
     try {
-      const res = await API.post('/doctors/register', {
+      const res = await API.post('/doctors/register/request-otp', {
         full_name: form.full_name,
         email: form.email,
         password: form.password,
@@ -63,12 +80,39 @@ export default function DoctorRegister() {
         license_number: form.license_number,
         hospital_name: form.hospital_name,
       });
-      doctorLogin(res.data.doctor, res.data.token);
-      navigate('/doctor/pending');
+      setOtpPhone(res.data.phone);
+      setStep(3);
+      startResendCooldown();
     } catch (err) {
       setError(err.response?.data?.error || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    if (!otp) { setError('Please enter the OTP.'); return; }
+    setVerifying(true); setError('');
+    try {
+      const res = await API.post('/doctors/register/verify-otp', { phone: otpPhone, otp });
+      doctorLogin(res.data.doctor, res.data.token);
+      navigate('/doctor/pending');
+    } catch (err) {
+      setError(err.response?.data?.error || 'OTP verification failed. Please try again.');
+    } finally {
+      setVerifying(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    setResending(true); setError('');
+    try {
+      await API.post('/doctors/register/resend-otp', { phone: otpPhone });
+      startResendCooldown();
+    } catch (err) {
+      setError(err.response?.data?.error || 'Failed to resend OTP.');
+    } finally {
+      setResending(false);
     }
   };
 
@@ -109,16 +153,20 @@ export default function DoctorRegister() {
             <div className={`auth-step ${step >= 1 ? 'active doctor-step' : ''}`}>1</div>
             <div className="auth-step-line" />
             <div className={`auth-step ${step >= 2 ? 'active doctor-step' : ''}`}>2</div>
+            <div className="auth-step-line" />
+            <div className={`auth-step ${step >= 3 ? 'active doctor-step' : ''}`}>3</div>
           </div>
 
-          <h1 className="auth-title">Doctor Registration</h1>
+          <h1 className="auth-title">{step === 3 ? 'Verify your phone' : 'Doctor Registration'}</h1>
           <p className="auth-sub">
-            {step === 1 ? 'Step 1 of 2 — Account details' : 'Step 2 of 2 — Professional details'}
+            {step === 1 ? 'Step 1 of 3 — Account details'
+              : step === 2 ? 'Step 2 of 3 — Professional details'
+              : 'Step 3 of 3 — Enter the OTP sent to your phone'}
           </p>
 
           {error && <div className="auth-error">{error}</div>}
 
-          {step === 1 ? (
+          {step === 1 && (
             <div className="auth-fields">
               <div className="form-group">
                 <label className="form-label">Full Name *</label>
@@ -148,7 +196,9 @@ export default function DoctorRegister() {
                 Continue →
               </button>
             </div>
-          ) : (
+          )}
+
+          {step === 2 && (
             <div className="auth-fields">
               <div className="form-group">
                 <label className="form-label">Phone Number *</label>
@@ -184,6 +234,28 @@ export default function DoctorRegister() {
                   {loading ? <><span className="spinner" /> Registering...</> : 'Submit for Verification'}
                 </button>
               </div>
+            </div>
+          )}
+
+          {step === 3 && (
+            <div className="auth-fields">
+              <p style={{fontSize:'14px', color:'var(--outline)', marginBottom:'4px'}}>
+                We sent a 6-digit code to <strong>{otpPhone}</strong>.
+              </p>
+              <div className="form-group">
+                <label className="form-label">Enter OTP *</label>
+                <input className="form-input" name="otp" inputMode="numeric" maxLength={6}
+                  placeholder="123456" value={otp} onChange={e => { setOtp(e.target.value); setError(''); }} />
+              </div>
+              <button className="btn-primary auth-btn doctor-btn" onClick={handleVerifyOtp} disabled={verifying}>
+                {verifying ? <><span className="spinner" /> Verifying...</> : 'Verify & Submit for Verification'}
+              </button>
+              <button className="btn-outline auth-btn" onClick={handleResendOtp} disabled={resending || resendCooldown > 0}>
+                {resending ? 'Resending...' : resendCooldown > 0 ? `Resend OTP (${resendCooldown}s)` : 'Resend OTP'}
+              </button>
+              <button className="auth-switch" style={{background:'none', border:'none', cursor:'pointer', padding:0}} onClick={() => setStep(2)}>
+                ← Back to edit details
+              </button>
             </div>
           )}
 
