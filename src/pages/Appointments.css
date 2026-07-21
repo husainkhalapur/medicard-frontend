@@ -195,7 +195,7 @@
 }
 .appt-card-info { flex: 1; min-width: 0; }
 .appt-doctor-name { font-size: 17px; font-weight: 700; color: var(--on-surface); font-family: 'Manrope', sans-serif; margin-bottom: 4px; }
-.appt-spec { margin-bottom: 4px; }
+.appt-spec { margin-bottom: 4px; display: flex; flex-wrap: wrap; gap: 4px; }
 .appt-hospital { font-size: 13px; color: var(--outline); }
 .appt-reason { font-size: 13px; color: var(--on-surface-variant); font-style: italic; margin-top: 6px; }
 

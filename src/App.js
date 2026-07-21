@@ -7,6 +7,7 @@ import DoctorRegister from './pages/DoctorRegister';
 import DoctorLogin from './pages/DoctorLogin';
 import DoctorPending from './pages/DoctorPending';
 import DoctorDashboard from './pages/DoctorDashboard';
+import DoctorProfile from './pages/DoctorProfile';
 import DoctorPatientView from './pages/DoctorPatientView';
 import Landing from './pages/Landing';
 import Register from './pages/Register';
@@ -21,6 +22,8 @@ import Reminders from './pages/Reminders';
 import Bills from './pages/Bills';
 import Appointments from './pages/Appointments';
 import DoctorAppointments from './pages/DoctorAppointments';
+import ActivityLog from './pages/ActivityLog';
+import AccessRequests from './pages/AccessRequests';
 import './styles/global.css';
 
 // Patient route guards
@@ -100,6 +103,12 @@ function AppRoutes() {
       <Route path="/bills" element={
         <PatientProtectedRoute><Bills /></PatientProtectedRoute>
       } />
+      <Route path="/activity-log" element={
+        <PatientProtectedRoute><ActivityLog /></PatientProtectedRoute>
+      } />
+      <Route path="/access-requests" element={
+        <PatientProtectedRoute><AccessRequests /></PatientProtectedRoute>
+      } />
 
       {/* Emergency Public — no login needed */}
       <Route path="/emergency/:uniqueId" element={<EmergencyPublic />} />
@@ -123,6 +132,9 @@ function AppRoutes() {
       } />
       <Route path="/doctor/patient/:uniqueId" element={
         <DoctorProtectedRoute><DoctorPatientView /></DoctorProtectedRoute>
+      } />
+      <Route path="/doctor/profile" element={
+        <DoctorProtectedRoute><DoctorProfile /></DoctorProtectedRoute>
       } />
 
       {/* Catch all */}

@@ -11,6 +11,8 @@ const NAV_ITEMS = [
   { to: '/bills', icon: 'receipt_long', label: 'Bills' },
   { to: '/emergency-profile', icon: 'emergency', label: 'Emergency' },
   { to: '/appointments', icon: 'calendar_month', label: 'Appointments' },
+  { to: '/access-requests', icon: 'verified_user', label: 'Access Requests' },
+  { to: '/activity-log', icon: 'history', label: 'Activity Log' },
 ];
 
 const SIDEBAR_WIDTH = '240px';
@@ -67,10 +69,6 @@ export default function Navbar() {
             <span className="brand-icon material-symbols-outlined">medical_information</span>
             <span>MediCard</span>
           </Link>
-          <div className="navbar-links">
-            <Link to="/login" className="btn-tonal" style={{padding:'9px 22px', fontSize:'14px'}}>Login</Link>
-            <Link to="/register" className="btn-primary" style={{padding:'9px 22px', fontSize:'14px'}}>Get Started</Link>
-          </div>
         </div>
       </nav>
     );

@@ -1,31 +1,107 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DoctorAPI from '../api/doctorAxios';
 import DoctorNavbar from '../components/DoctorNavbar';
-import { toDDMMYYYY } from '../utils/dateFormat';
+import { toDDMMYYYY, toYYYYMMDD } from '../utils/dateFormat';
+import { formatCountdown } from '../utils/slotTime';
+import { formatRupees } from '../utils/paymentUtils';
 import './DoctorAppointments.css';
 
-const STATUS_TABS = ['all', 'pending', 'confirmed', 'completed', 'cancelled', 'no-show'];
+const STATUS_TABS = ['all', 'requested', 'accepted_awaiting_payment', 'confirmed', 'completed', 'cancelled'];
+const CANCELLED_LIKE = ['rejected', 'expired', 'cancelled_by_patient', 'cancelled_by_doctor'];
+
+// A visit can reserve several consecutive slots (e.g. a longer procedure).
+// When accepting a request or booking a walk-in, the doctor can pick how
+// many of the immediately-following available slots to reserve alongside
+// the primary one.
+const MAX_EXTRA_SLOTS = 10;
+
+const TAB_LABEL = {
+  all: 'All',
+  requested: 'Requested',
+  accepted_awaiting_payment: 'Awaiting Payment',
+  confirmed: 'Confirmed',
+  completed: 'Completed',
+  cancelled: 'Cancelled/Other',
+};
+
+const matchesTab = (appt, tab) => {
+  if (tab === 'all') return true;
+  if (tab === 'cancelled') return CANCELLED_LIKE.includes(appt.status);
+  return appt.status === tab;
+};
+
+const STATUS_LABEL = {
+  requested: 'Requested',
+  accepted_awaiting_payment: 'Awaiting Payment',
+  confirmed: 'Confirmed',
+  completed: 'Completed',
+  expired: 'Expired',
+  rejected: 'Rejected',
+  cancelled_by_patient: 'Cancelled by Patient',
+  cancelled_by_doctor: 'Cancelled',
+  'no-show': 'No Show',
+};
 
 const statusColor = (s) => ({
-  pending:   'appt-status-pending',
-  confirmed: 'appt-status-confirmed',
-  completed: 'appt-status-completed',
-  cancelled: 'appt-status-cancelled',
-  rejected:  'appt-status-cancelled',
-  'no-show': 'appt-status-noshow',
+  requested:                 'appt-status-pending',
+  accepted_awaiting_payment: 'appt-status-pending',
+  confirmed:                 'appt-status-confirmed',
+  completed:                 'appt-status-completed',
+  expired:                   'appt-status-cancelled',
+  rejected:                  'appt-status-cancelled',
+  cancelled_by_patient:      'appt-status-cancelled',
+  cancelled_by_doctor:       'appt-status-cancelled',
+  'no-show':                 'appt-status-noshow',
 }[s] || 'appt-status-confirmed');
 
 const statusIcon = (s) => ({
-  pending:   'pending',
-  confirmed: 'event_available',
-  completed: 'check_circle',
-  cancelled: 'cancel',
-  rejected:  'cancel',
-  'no-show': 'person_off',
+  requested:                 'pending',
+  accepted_awaiting_payment: 'payments',
+  confirmed:                 'event_available',
+  completed:                 'check_circle',
+  expired:                   'schedule',
+  rejected:                  'cancel',
+  cancelled_by_patient:      'cancel',
+  cancelled_by_doctor:       'cancel',
+  'no-show':                 'person_off',
 }[s] || 'event');
 
 const typeIcon = (t) => t === 'telehealth' ? 'videocam' : 'location_on';
+
+// The N slots immediately following `fromTime` in `slotsList` that are still
+// available, stopping at the first gap/unavailable slot — a valid extension
+// can only ever be a contiguous run, so this is the full set of choices.
+const getContiguousAvailableAfter = (slotsList, fromTime, max) => {
+  const idx = slotsList.findIndex(s => s.time === fromTime);
+  if (idx === -1) return [];
+  const candidates = [];
+  for (let i = idx + 1; i < slotsList.length && candidates.length < max; i++) {
+    if (!slotsList[i].available) break;
+    candidates.push(slotsList[i].time);
+  }
+  return candidates;
+};
+
+// A small "how many extra adjacent slots" stepper, shared by the Accept
+// panel and the New Appointment panel.
+function ExtraSlotsStepper({ candidates, count, setCount, loading }) {
+  if (loading) return <div style={{fontSize:'13px', color:'var(--outline)'}}>Checking availability...</div>;
+  if (candidates.length === 0) return <div style={{fontSize:'13px', color:'var(--outline)'}}>No adjacent slots free to extend into.</div>;
+  return (
+    <div style={{display:'flex', alignItems:'center', gap:'10px', flexWrap:'wrap'}}>
+      <span style={{fontSize:'13px'}}>Extra adjacent slots for this visit:</span>
+      <button type="button" className="btn-outline" style={{padding:'4px 10px'}}
+        disabled={count === 0} onClick={() => setCount(c => Math.max(0, c - 1))}>−</button>
+      <strong>{count}</strong>
+      <button type="button" className="btn-outline" style={{padding:'4px 10px'}}
+        disabled={count >= candidates.length} onClick={() => setCount(c => Math.min(candidates.length, c + 1))}>+</button>
+      {count > 0 && (
+        <span style={{fontSize:'12px', color:'var(--outline)'}}>reserves through {candidates[count - 1]}</span>
+      )}
+    </div>
+  );
+}
 
 export default function DoctorAppointments() {
   const navigate = useNavigate();
@@ -45,14 +121,72 @@ export default function DoctorAppointments() {
   const [createForm, setCreateForm] = useState({ patient_unique_id: '', appointment_date: '', appointment_type: 'in-person', reason: '' });
   const [createSlots, setCreateSlots] = useState([]);
   const [selectedCreateSlot, setSelectedCreateSlot] = useState(null);
+  const [createExtraCount, setCreateExtraCount] = useState(0);
   const [loadingSlots, setLoadingSlots] = useState(false);
   const [creating, setCreating] = useState(false);
 
-  useEffect(() => { fetchAppointments(); }, [activeTab, dateFilter]);
+  // Patient search-as-you-type for the "Patient MediCard ID" field — partial
+  // ID or name both work, same debounced-autocomplete pattern as the
+  // dashboard's patient search.
+  const [patientSuggestions, setPatientSuggestions] = useState([]);
+  const [showPatientSuggestions, setShowPatientSuggestions] = useState(false);
+  const patientSearchWrapRef = useRef(null);
+  const justSelectedPatientRef = useRef(false);
+
+  // Accepting a request — optional adjacent-slot extension.
+  const [extendingId, setExtendingId] = useState(null);
+  const [extendCandidates, setExtendCandidates] = useState([]);
+  const [extendCount, setExtendCount] = useState(0);
+  const [loadingExtend, setLoadingExtend] = useState(false);
+
+  // Ticks every 30s so "time remaining" countdowns stay live without a refetch.
+  const [now, setNow] = useState(new Date());
+  useEffect(() => {
+    const interval = setInterval(() => setNow(new Date()), 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => { fetchAppointments(); }, [dateFilter]);
   useEffect(() => { if (createForm.appointment_date) fetchCreateSlots(); }, [createForm.appointment_date]);
 
+  // Live autocomplete as the doctor types a partial MediCard ID or patient name.
+  useEffect(() => {
+    if (justSelectedPatientRef.current) { justSelectedPatientRef.current = false; return; }
+    const trimmed = createForm.patient_unique_id.trim();
+    if (trimmed.length < 2) {
+      setPatientSuggestions([]);
+      setShowPatientSuggestions(false);
+      return;
+    }
+    const timer = setTimeout(async () => {
+      try {
+        const res = await DoctorAPI.get('/doctor/patients/search', { params: { q: trimmed } });
+        setPatientSuggestions(res.data.patients);
+        setShowPatientSuggestions(true);
+      } catch (err) { console.error(err); }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [createForm.patient_unique_id]);
+
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (patientSearchWrapRef.current && !patientSearchWrapRef.current.contains(e.target)) {
+        setShowPatientSuggestions(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const selectPatient = (p) => {
+    justSelectedPatientRef.current = true;
+    setCreateForm(f => ({ ...f, patient_unique_id: p.unique_id }));
+    setPatientSuggestions([]);
+    setShowPatientSuggestions(false);
+  };
+
   const fetchCreateSlots = async () => {
-    setLoadingSlots(true); setSelectedCreateSlot(null);
+    setLoadingSlots(true); setSelectedCreateSlot(null); setCreateExtraCount(0);
     try {
       const res = await DoctorAPI.get('/appointments/doctor/slots', { params: { date: createForm.appointment_date } });
       setCreateSlots(res.data.slots);
@@ -62,8 +196,12 @@ export default function DoctorAppointments() {
 
   const resetCreateForm = () => {
     setCreateForm({ patient_unique_id: '', appointment_date: '', appointment_type: 'in-person', reason: '' });
-    setCreateSlots([]); setSelectedCreateSlot(null);
+    setCreateSlots([]); setSelectedCreateSlot(null); setCreateExtraCount(0);
+    setPatientSuggestions([]); setShowPatientSuggestions(false);
   };
+
+  const createExtendCandidates = selectedCreateSlot
+    ? getContiguousAvailableAfter(createSlots, selectedCreateSlot, MAX_EXTRA_SLOTS) : [];
 
   const handleCreate = async () => {
     if (!createForm.patient_unique_id || !createForm.appointment_date || !selectedCreateSlot) {
@@ -76,13 +214,14 @@ export default function DoctorAppointments() {
         appointment_date: createForm.appointment_date,
         appointment_time: selectedCreateSlot,
         appointment_type: createForm.appointment_type,
-        reason: createForm.reason
+        reason: createForm.reason,
+        extra_times: createExtendCandidates.slice(0, createExtraCount),
       });
-      showSuccess('Appointment booked for patient.');
+      showSuccess(createExtraCount > 0 ? `Request sent — ${createExtraCount} extra slot(s) held pending the patient's acceptance.` : 'Request sent to patient — awaiting their acceptance.');
       setShowCreate(false); resetCreateForm();
       fetchAppointments();
     } catch (err) {
-      showError(err.response?.data?.error || 'Failed to book appointment.');
+      showError(err.response?.data?.error || 'Failed to send appointment request.');
     } finally { setCreating(false); }
   };
 
@@ -90,7 +229,6 @@ export default function DoctorAppointments() {
     setLoading(true);
     try {
       const params = {};
-      if (activeTab !== 'all') params.status = activeTab;
       if (dateFilter) params.date = dateFilter;
       const res = await DoctorAPI.get('/appointments/doctor', { params });
       setAppointments(res.data.appointments);
@@ -101,45 +239,88 @@ export default function DoctorAppointments() {
   const showSuccess = (msg) => { setSuccess(msg); setTimeout(() => setSuccess(''), 3000); };
   const showError = (msg) => { setError(msg); setTimeout(() => setError(''), 4000); };
 
-  const handleApprove = async (id) => {
-    setUpdatingStatus(id);
+  const openExtend = async (appt) => {
+    setExtendingId(appt.id); setExtendCount(0); setExtendCandidates([]);
+    setLoadingExtend(true);
     try {
-      await DoctorAPI.put(`/appointments/doctor/${id}/approve`);
-      setAppointments(prev => prev.map(a => a.id === id ? { ...a, status: 'confirmed' } : a));
-      showSuccess('Appointment approved successfully.');
+      const res = await DoctorAPI.get('/appointments/doctor/slots', { params: { date: appt.appointment_date } });
+      setExtendCandidates(getContiguousAvailableAfter(res.data.slots, appt.appointment_time, MAX_EXTRA_SLOTS));
+    } catch (err) { console.error(err); }
+    finally { setLoadingExtend(false); }
+  };
+
+  const cancelExtend = () => { setExtendingId(null); setExtendCandidates([]); setExtendCount(0); };
+
+  const handleAccept = async (appt) => {
+    setUpdatingStatus(appt.id);
+    try {
+      const extra_times = extendCandidates.slice(0, extendCount);
+      const res = await DoctorAPI.post(`/appointments/${appt.id}/respond`, { action: 'accept', extra_times });
+      setAppointments(prev => prev.map(a => a.id === appt.id ? res.data.appointment : a));
+      showSuccess(extra_times.length > 0 ? `Accepted with ${extra_times.length} extra slot(s) reserved.` : 'Appointment accepted — patient will be asked to pay the advance.');
+      cancelExtend();
     } catch (err) {
-      showError(err.response?.data?.error || 'Failed to approve appointment.');
+      showError(err.response?.data?.error || 'Failed to accept appointment.');
     } finally { setUpdatingStatus(null); }
   };
 
   const handleReject = async (id) => {
-    const reason = window.prompt('Reason for rejection (optional — patient will see this):');
-    if (reason === null) return; // cancelled prompt
+    const rejection_reason = window.prompt('Reason for declining (optional — patient will see this):');
+    if (rejection_reason === null) return; // cancelled prompt
     setUpdatingStatus(id);
     try {
-      await DoctorAPI.put(`/appointments/doctor/${id}/reject`, { rejection_reason: reason });
-      setAppointments(prev => prev.map(a =>
-        a.id === id ? { ...a, status: 'rejected', doctor_notes: reason } : a
-      ));
-      showSuccess('Appointment rejected.');
+      const res = await DoctorAPI.post(`/appointments/${id}/respond`, { action: 'decline', rejection_reason });
+      setAppointments(prev => prev.map(a => a.id === id ? res.data.appointment : a));
+      showSuccess('Request declined.');
     } catch (err) {
-      showError(err.response?.data?.error || 'Failed to reject appointment.');
+      showError(err.response?.data?.error || 'Failed to decline request.');
     } finally { setUpdatingStatus(null); }
   };
 
   const handleDoctorCancel = async (id) => {
-    if (!window.confirm('Are you sure you want to cancel this appointment?')) return;
-    await handleStatusUpdate(id, 'cancelled');
-  };
-
-  const handleStatusUpdate = async (id, status) => {
+    if (!window.confirm('Cancel this confirmed appointment? Any advance the patient paid will be fully refunded.')) return;
     setUpdatingStatus(id);
     try {
-      await DoctorAPI.put(`/appointments/doctor/${id}/status`, { status });
-      setAppointments(prev => prev.map(a => a.id === id ? { ...a, status } : a));
+      const res = await DoctorAPI.post(`/appointments/${id}/doctor-cancel`);
+      setAppointments(prev => prev.map(a => a.id === id ? { ...a, status: 'cancelled_by_doctor' } : a));
+      showSuccess(res.data.refund_initiated ? 'Appointment cancelled. Refund initiated.' : 'Appointment cancelled.');
+    } catch (err) {
+      showError(err.response?.data?.error || 'Failed to cancel appointment.');
+    } finally { setUpdatingStatus(null); }
+  };
+
+  const handleStatusUpdate = async (id, status, final_fee) => {
+    setUpdatingStatus(id);
+    try {
+      await DoctorAPI.put(`/appointments/doctor/${id}/status`, { status, final_fee });
+      setAppointments(prev => prev.map(a => a.id === id ? { ...a, status, ...(final_fee != null ? { final_fee } : {}) } : a));
       showSuccess(`Appointment marked as ${status}.`);
     } catch (err) {
-      showError('Failed to update status.');
+      showError(err.response?.data?.error || 'Failed to update status.');
+    } finally { setUpdatingStatus(null); }
+  };
+
+  // The consultation fee isn't fixed — it's whatever the doctor decides this
+  // particular visit cost, entered right when they mark it complete.
+  const handleMarkComplete = (id) => {
+    const input = window.prompt('Enter the total consultation fee charged for this visit (₹):');
+    if (input === null) return; // cancelled prompt
+    const feeRupees = Number(input);
+    if (!Number.isFinite(feeRupees) || feeRupees < 0) {
+      showError('Please enter a valid, non-negative fee amount.');
+      return;
+    }
+    handleStatusUpdate(id, 'completed', Math.round(feeRupees * 100));
+  };
+
+  const handleBalanceCollected = async (id) => {
+    setUpdatingStatus(id);
+    try {
+      await DoctorAPI.put(`/appointments/doctor/${id}/balance-collected`);
+      setAppointments(prev => prev.map(a => a.id === id ? { ...a, balance_collected: true } : a));
+      showSuccess('Balance marked as collected.');
+    } catch (err) {
+      showError('Failed to update.');
     } finally { setUpdatingStatus(null); }
   };
 
@@ -156,11 +337,12 @@ export default function DoctorAppointments() {
 
   const formatDate = (d) => toDDMMYYYY(d);
 
-  const todayStr = new Date().toISOString().split('T')[0];
-  const pendingCount = appointments.filter(a => a.status === 'pending').length;
+  const todayStr = toYYYYMMDD(new Date());
+  const pendingCount = appointments.filter(a => a.status === 'requested').length;
   const todayAppts = appointments.filter(a =>
     a.appointment_date?.split('T')[0] === todayStr && a.status === 'confirmed'
   );
+  const displayed = appointments.filter(a => matchesTab(a, activeTab));
 
   return (
     <div className="dr-appt-page">
@@ -194,13 +376,39 @@ export default function DoctorAppointments() {
         {/* Doctor-initiated booking panel */}
         {showCreate && (
           <div className="card dr-create-panel fade-up">
-            <h2 className="card-section-title">Book Appointment for a Patient</h2>
+            <h2 className="card-section-title">Propose an Appointment</h2>
+            <p style={{fontSize:'13px', color:'var(--outline)', marginTop:'-8px'}}>
+              The patient will need to accept and pay the advance before this is confirmed.
+            </p>
             <div className="dr-create-grid">
               <div className="form-group">
-                <label className="form-label">Patient MediCard ID *</label>
-                <input className="form-input" placeholder="e.g. MC-12345"
-                  value={createForm.patient_unique_id}
-                  onChange={e => setCreateForm(f => ({ ...f, patient_unique_id: e.target.value }))} />
+                <label className="form-label">Patient *</label>
+                <div className="search-input-wrap" ref={patientSearchWrapRef}>
+                  <input className="form-input search-input" placeholder="MediCard ID or patient name"
+                    value={createForm.patient_unique_id}
+                    onChange={e => { setCreateForm(f => ({ ...f, patient_unique_id: e.target.value })); setError(''); }}
+                    onFocus={() => { if (patientSuggestions.length > 0) setShowPatientSuggestions(true); }} />
+                  {showPatientSuggestions && (
+                    <div className="search-suggestions">
+                      {patientSuggestions.length === 0 ? (
+                        <div className="search-suggestion-empty">No matching patients</div>
+                      ) : (
+                        patientSuggestions.map(p => (
+                          <div key={p.id} className="search-suggestion-row" onClick={() => selectPatient(p)}>
+                            <div className="search-suggestion-avatar">{p.full_name?.charAt(0).toUpperCase()}</div>
+                            <div className="search-suggestion-info">
+                              <div className="search-suggestion-name">{p.full_name}</div>
+                              <div className="search-suggestion-id">
+                                {[p.unique_id, p.sex, p.age != null ? `${p.age}y` : null].filter(Boolean).join(' · ')}
+                              </div>
+                            </div>
+                            {p.blood_group && <span className="badge badge-green">{p.blood_group}</span>}
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
               <div className="form-group">
                 <label className="form-label">Date *</label>
@@ -239,10 +447,10 @@ export default function DoctorAppointments() {
                     {createSlots.map(slot => (
                       <button key={slot.time} type="button" disabled={!slot.available}
                         className={`time-slot-btn ${!slot.available ? 'booked' : ''} ${selectedCreateSlot === slot.time ? 'selected' : ''}`}
-                        onClick={() => slot.available && setSelectedCreateSlot(slot.time)}>
+                        onClick={() => { if (slot.available) { setSelectedCreateSlot(slot.time); setCreateExtraCount(0); } }}>
                         <span>{slot.time}</span>
                         {!slot.available
-                          ? <span className="slot-status booked-label">Booked</span>
+                          ? <span className="slot-status booked-label">{slot.dayOff ? 'Day Off' : slot.past ? 'Past' : 'Booked'}</span>
                           : selectedCreateSlot === slot.time
                             ? <span className="material-symbols-outlined" style={{fontSize:'16px'}}>check_circle</span>
                             : <span className="slot-status avail-label">Open</span>}
@@ -253,10 +461,16 @@ export default function DoctorAppointments() {
               </div>
             )}
 
+            {selectedCreateSlot && (
+              <div className="dr-create-slots">
+                <ExtraSlotsStepper candidates={createExtendCandidates} count={createExtraCount} setCount={setCreateExtraCount} loading={false} />
+              </div>
+            )}
+
             <div style={{display:'flex', gap:'10px', marginTop:'8px'}}>
               <button className="btn-outline" onClick={() => { setShowCreate(false); resetCreateForm(); }}>Cancel</button>
               <button className="btn-primary" onClick={handleCreate} disabled={creating}>
-                {creating ? <><span className="spinner" /> Booking...</> : 'Book Appointment'}
+                {creating ? <><span className="spinner" /> Sending...</> : 'Send Request'}
               </button>
             </div>
           </div>
@@ -268,10 +482,10 @@ export default function DoctorAppointments() {
             <span className="material-symbols-outlined">pending_actions</span>
             <div>
               <strong>{pendingCount} pending appointment request{pendingCount > 1 ? 's' : ''} need your review.</strong>
-              <span> Switch to the Pending tab to action them.</span>
+              <span> Switch to the Requested tab to action them.</span>
             </div>
             <button className="btn-primary" style={{fontSize:'13px', padding:'8px 20px', marginLeft:'auto', flexShrink:0}}
-              onClick={() => setActiveTab('pending')}>
+              onClick={() => setActiveTab('requested')}>
               Review Now
             </button>
           </div>
@@ -293,17 +507,16 @@ export default function DoctorAppointments() {
         {/* Tabs */}
         <div className="dr-appt-tabs fade-up fade-up-delay-1">
           {STATUS_TABS.map(tab => {
-            const count = tab === 'all'
-              ? appointments.length
-              : appointments.filter(a => a.status === tab).length;
+            const count = appointments.filter(a => matchesTab(a, tab)).length;
             return (
               <button key={tab}
-                className={`dr-appt-tab ${activeTab === tab ? 'active' : ''} ${tab === 'pending' && pendingCount > 0 ? 'has-badge' : ''}`}
+                className={`dr-appt-tab ${activeTab === tab ? 'active' : ''} ${tab === 'requested' && pendingCount > 0 ? 'has-badge' : ''}`}
                 onClick={() => setActiveTab(tab)}>
-                {tab === 'all' ? 'All' : tab.charAt(0).toUpperCase() + tab.slice(1).replace('-', ' ')}
-                {tab === 'pending' && pendingCount > 0 && (
+                {TAB_LABEL[tab]}
+                {tab === 'requested' && pendingCount > 0 && (
                   <span className="tab-badge">{pendingCount}</span>
                 )}
+                {tab !== 'requested' && ` (${count})`}
               </button>
             );
           })}
@@ -312,7 +525,7 @@ export default function DoctorAppointments() {
         {/* Appointments */}
         {loading ? (
           <div className="loading-state">Loading appointments...</div>
-        ) : appointments.length === 0 ? (
+        ) : displayed.length === 0 ? (
           <div className="card">
             <div className="empty-state">
               <span className="material-symbols-outlined empty-icon">calendar_month</span>
@@ -322,7 +535,19 @@ export default function DoctorAppointments() {
           </div>
         ) : (
           <div className="dr-appt-list fade-up fade-up-delay-2">
-            {appointments.map(appt => (
+            {displayed.map(appt => {
+              const balancePaise = appt.final_fee != null ? appt.final_fee - appt.advance_amount : null;
+              const respondCountdown = appt.status === 'requested' && appt.request_expires_at
+                ? formatCountdown(appt.request_expires_at, now) : null;
+              const payCountdown = appt.status === 'accepted_awaiting_payment' && appt.payment_deadline
+                ? formatCountdown(appt.payment_deadline, now) : null;
+              const linkedCount = Number(appt.linked_count) || 0;
+              const visitEndLabel = linkedCount > 0
+                ? new Date(new Date(appt.last_slot_datetime).getTime() + 30 * 60000)
+                    .toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: 'numeric', minute: '2-digit', hour12: true })
+                : null;
+
+              return (
               <div key={appt.id} className={`dr-appt-card ${appt.status}`}>
                 <div className="dr-appt-main">
 
@@ -349,6 +574,7 @@ export default function DoctorAppointments() {
                     <div className="dr-appt-meta">
                       <span className="material-symbols-outlined">schedule</span>
                       {appt.appointment_time}
+                      {linkedCount > 0 && <span className="badge badge-secondary" style={{fontSize:'11px', marginLeft:'6px'}}>+{linkedCount} slot{linkedCount > 1 ? 's' : ''}, until {visitEndLabel}</span>}
                     </div>
                     <div className="dr-appt-meta">
                       <span className="material-symbols-outlined">{typeIcon(appt.appointment_type)}</span>
@@ -361,49 +587,118 @@ export default function DoctorAppointments() {
                   <div className="dr-appt-actions">
                     <div className={`dr-appt-status ${statusColor(appt.status)}`}>
                       <span className="material-symbols-outlined" style={{fontSize:'14px'}}>{statusIcon(appt.status)}</span>
-                      {appt.status?.charAt(0).toUpperCase() + appt.status?.slice(1).replace('-',' ')}
+                      {STATUS_LABEL[appt.status] || appt.status}
                     </div>
 
-                    {/* Pending — Approve or Reject */}
-                    {appt.status === 'pending' && (
-                      <div className="dr-action-btns">
-                        <button className="btn-primary approve-btn"
-                          disabled={updatingStatus === appt.id}
-                          onClick={() => handleApprove(appt.id)}>
-                          <span className="material-symbols-outlined" style={{fontSize:'16px'}}>check</span>
-                          Approve
-                        </button>
-                        <button className="btn-danger"
-                          style={{fontSize:'12px', padding:'7px 16px', justifyContent:'center'}}
-                          disabled={updatingStatus === appt.id}
-                          onClick={() => handleReject(appt.id)}>
-                          <span className="material-symbols-outlined" style={{fontSize:'16px'}}>close</span>
-                          Reject
-                        </button>
+                    {/* Requested by the patient — Accept (with optional adjacent-slot extension) or Decline */}
+                    {appt.status === 'requested' && appt.initiated_by === 'patient' && (
+                      <>
+                        {respondCountdown && <div className="dr-appt-reason">{respondCountdown} left to respond</div>}
+                        {extendingId === appt.id ? (
+                          <div className="dr-appt-reason">
+                            <ExtraSlotsStepper candidates={extendCandidates} count={extendCount} setCount={setExtendCount} loading={loadingExtend} />
+                            <div className="dr-action-btns" style={{marginTop:'8px'}}>
+                              <button className="btn-primary approve-btn"
+                                disabled={updatingStatus === appt.id}
+                                onClick={() => handleAccept(appt)}>
+                                <span className="material-symbols-outlined" style={{fontSize:'16px'}}>check</span>
+                                Confirm Accept
+                              </button>
+                              <button className="btn-outline" onClick={cancelExtend}>Cancel</button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="dr-action-btns">
+                            <button className="btn-primary approve-btn"
+                              disabled={updatingStatus === appt.id}
+                              onClick={() => openExtend(appt)}>
+                              <span className="material-symbols-outlined" style={{fontSize:'16px'}}>check</span>
+                              Accept
+                            </button>
+                            <button className="btn-danger"
+                              style={{fontSize:'12px', padding:'7px 16px', justifyContent:'center'}}
+                              disabled={updatingStatus === appt.id}
+                              onClick={() => handleReject(appt.id)}>
+                              <span className="material-symbols-outlined" style={{fontSize:'16px'}}>close</span>
+                              Decline
+                            </button>
+                          </div>
+                        )}
+                      </>
+                    )}
+
+                    {/* Proposed by the doctor — nothing to do but wait for the patient */}
+                    {appt.status === 'requested' && appt.initiated_by === 'doctor' && (
+                      <div className="dr-appt-reason">
+                        Waiting on patient to accept{respondCountdown ? ` · ${respondCountdown} left` : ''}
                       </div>
                     )}
 
-                    {/* Confirmed — Complete or No Show */}
+                    {/* Awaiting payment — nothing for the doctor to do but wait */}
+                    {appt.status === 'accepted_awaiting_payment' && (
+                      <div className="dr-appt-reason">
+                        Waiting on patient to pay the advance{payCountdown ? ` · ${payCountdown} left` : ''}
+                      </div>
+                    )}
+
+                    {/* Confirmed — fee isn't known yet; Complete (enters fee) or No Show or Cancel */}
                     {appt.status === 'confirmed' && (
-                      <div className="dr-action-btns">
-                        <button className="btn-primary"
-                          style={{fontSize:'12px', padding:'7px 16px', justifyContent:'center'}}
-                          disabled={updatingStatus === appt.id}
-                          onClick={() => handleStatusUpdate(appt.id, 'completed')}>
-                          Mark Complete
-                        </button>
-                        <button className="btn-tonal"
-                          style={{fontSize:'12px', padding:'7px 16px', justifyContent:'center'}}
-                          disabled={updatingStatus === appt.id}
-                          onClick={() => handleStatusUpdate(appt.id, 'no-show')}>
-                          No Show
-                        </button>
-                        <button className="btn-danger"
-                          style={{fontSize:'12px', padding:'7px 16px', justifyContent:'center'}}
-                          disabled={updatingStatus === appt.id}
-                          onClick={() => handleDoctorCancel(appt.id)}>
-                          Cancel
-                        </button>
+                      <>
+                        <div className="dr-appt-reason">
+                          {formatRupees(appt.advance_amount)} advance received. Enter the total fee when you mark this complete.
+                        </div>
+                        <div className="dr-action-btns">
+                          <button className="btn-primary"
+                            style={{fontSize:'12px', padding:'7px 16px', justifyContent:'center'}}
+                            disabled={updatingStatus === appt.id}
+                            onClick={() => handleMarkComplete(appt.id)}>
+                            Mark Complete
+                          </button>
+                          <button className="btn-tonal"
+                            style={{fontSize:'12px', padding:'7px 16px', justifyContent:'center'}}
+                            disabled={updatingStatus === appt.id}
+                            onClick={() => handleStatusUpdate(appt.id, 'no-show')}>
+                            No Show
+                          </button>
+                          <button className="btn-danger"
+                            style={{fontSize:'12px', padding:'7px 16px', justifyContent:'center'}}
+                            disabled={updatingStatus === appt.id}
+                            onClick={() => handleDoctorCancel(appt.id)}>
+                            Cancel
+                          </button>
+                        </div>
+                      </>
+                    )}
+
+                    {/* Completed — fee is known, so the balance is too */}
+                    {appt.status === 'completed' && appt.final_fee != null && (
+                      <>
+                        <div className="dr-appt-reason">
+                          {formatRupees(appt.advance_amount)} advance received · {formatRupees(balancePaise)} to collect at clinic
+                          {appt.balance_collected && ' (collected)'}
+                        </div>
+                        {!appt.balance_collected && (
+                          <button className="btn-tonal"
+                            style={{fontSize:'12px', padding:'7px 16px', justifyContent:'center'}}
+                            disabled={updatingStatus === appt.id}
+                            onClick={() => handleBalanceCollected(appt.id)}>
+                            Mark Balance Collected
+                          </button>
+                        )}
+                      </>
+                    )}
+
+                    {appt.status === 'rejected' && appt.doctor_notes && (
+                      <div className="dr-appt-reason">Reason given: "{appt.doctor_notes}"</div>
+                    )}
+
+                    {['cancelled_by_patient', 'cancelled_by_doctor'].includes(appt.status) && appt.refund_status && (
+                      <div className="dr-appt-reason">
+                        {appt.refund_status === 'refunded'
+                          ? `${formatRupees(appt.refund_amount)} refunded to patient`
+                          : appt.refund_status === 'refund_initiated'
+                            ? `${formatRupees(appt.refund_amount)} refund in progress`
+                            : null}
                       </div>
                     )}
 
@@ -413,7 +708,7 @@ export default function DoctorAppointments() {
                         <span className="material-symbols-outlined" style={{fontSize:'16px'}}>open_in_new</span>
                         View Patient
                       </button>
-                      {appt.status !== 'pending' && (
+                      {!['requested', 'accepted_awaiting_payment'].includes(appt.status) && (
                         <button className="toggle-notes-btn"
                           onClick={() => {
                             setExpandedId(expandedId === appt.id ? null : appt.id);
@@ -448,7 +743,8 @@ export default function DoctorAppointments() {
                   </div>
                 )}
               </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

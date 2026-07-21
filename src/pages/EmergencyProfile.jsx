@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Navbar from '../components/Navbar';
 import API from '../api/axios';
@@ -15,11 +16,11 @@ export default function EmergencyProfile() {
   const [form, setForm] = useState({
     allergies: '',
     chronic_conditions: '',
-    current_medications: '',
     emergency_contact_name: '',
     emergency_contact_phone: '',
     first_aid_notes: '',
   });
+  const [activeMedications, setActiveMedications] = useState([]);
 
   const qrUrl = `${window.location.origin}/emergency/${user?.unique_id}`;
   const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrUrl)}&color=0a3d2e&bgcolor=f4fbf7`;
@@ -32,11 +33,11 @@ export default function EmergencyProfile() {
         setForm({
           allergies: d.allergies?.join(', ') || '',
           chronic_conditions: d.chronic_conditions?.join(', ') || '',
-          current_medications: d.current_medications?.join(', ') || '',
           emergency_contact_name: d.emergency_contact_name || '',
           emergency_contact_phone: d.emergency_contact_phone || '',
           first_aid_notes: d.first_aid_notes || '',
         });
+        setActiveMedications(d.active_medications || []);
       } catch (err) {
         console.error(err);
       } finally {
@@ -55,7 +56,6 @@ export default function EmergencyProfile() {
       await API.put('/emergency/profile', {
         allergies: form.allergies.split(',').map(s => s.trim()).filter(Boolean),
         chronic_conditions: form.chronic_conditions.split(',').map(s => s.trim()).filter(Boolean),
-        current_medications: form.current_medications.split(',').map(s => s.trim()).filter(Boolean),
         emergency_contact_name: form.emergency_contact_name,
         emergency_contact_phone: form.emergency_contact_phone,
         first_aid_notes: form.first_aid_notes,
@@ -161,14 +161,21 @@ export default function EmergencyProfile() {
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Current Medications <span className="field-hint">(comma separated)</span></label>
-                  {editing
-                    ? <input className="form-input" name="current_medications" placeholder="e.g. Metformin 500mg, Lisinopril 10mg" value={form.current_medications} onChange={handleChange} />
-                    : <div className="tag-list">
-                        {tags(form.current_medications).length > 0
-                          ? tags(form.current_medications).map(t => <span key={t} className="tag tag-blue">{t}</span>)
-                          : <span className="not-set">None recorded</span>}
-                      </div>}
+                  <label className="form-label">
+                    Current Medications <span className="field-hint">(from your active prescriptions)</span>
+                  </label>
+                  <div className="tag-list">
+                    {activeMedications.length > 0
+                      ? activeMedications.map((m, i) => (
+                          <span key={i} className="tag tag-blue">
+                            {m.medicine_name}{m.dosage ? ` ${m.dosage}` : ''}
+                          </span>
+                        ))
+                      : <span className="not-set">None recorded</span>}
+                  </div>
+                  <Link to="/prescriptions" className="field-hint" style={{display:'inline-block', marginTop:'6px'}}>
+                    Manage prescriptions →
+                  </Link>
                 </div>
 
                 <div className="form-group">

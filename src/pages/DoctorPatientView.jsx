@@ -47,6 +47,7 @@ export default function DoctorPatientView() {
   const [prescriptions, setPrescriptions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [requestingAccess, setRequestingAccess] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
@@ -81,17 +82,26 @@ export default function DoctorPatientView() {
 
   useEffect(() => { fetchAll(); }, [uniqueId]);
 
+  // Two-phase: the patient lookup always succeeds (emergency-tier fields +
+  // access_status). Records/prescriptions only exist to fetch once approved
+  // — calling them beforehand would just 403.
   const fetchAll = async () => {
     setLoading(true);
     try {
-      const [patientRes, recordsRes, prescRes] = await Promise.all([
-        DoctorAPI.get(`/doctor/patient/${uniqueId}`),
-        DoctorAPI.get(`/doctor/patient/${uniqueId}/records`),
-        DoctorAPI.get(`/doctor/patient/${uniqueId}/prescriptions`)
-      ]);
+      const patientRes = await DoctorAPI.get(`/doctor/patient/${uniqueId}`);
       setPatient(patientRes.data.patient);
-      setRecords(recordsRes.data.records);
-      setPrescriptions(prescRes.data.prescriptions);
+
+      if (patientRes.data.patient.access_status === 'approved') {
+        const [recordsRes, prescRes] = await Promise.all([
+          DoctorAPI.get(`/doctor/patient/${uniqueId}/records`),
+          DoctorAPI.get(`/doctor/patient/${uniqueId}/prescriptions`)
+        ]);
+        setRecords(recordsRes.data.records);
+        setPrescriptions(prescRes.data.prescriptions);
+      } else {
+        setRecords([]);
+        setPrescriptions([]);
+      }
     } catch (err) {
       if (err.response?.status === 404) setNotFound(true);
     } finally {
@@ -99,7 +109,34 @@ export default function DoctorPatientView() {
     }
   };
 
+  const handleRequestAccess = async () => {
+    setRequestingAccess(true); setError('');
+    try {
+      const res = await DoctorAPI.post(`/doctor/patient/${uniqueId}/request-access`);
+      setPatient(p => ({ ...p, access_status: res.data.access_status }));
+    } catch (err) {
+      setError(err.response?.data?.error || 'Failed to request access.');
+    } finally {
+      setRequestingAccess(false);
+    }
+  };
+
   const showSuccess = (msg) => { setSuccess(msg); setTimeout(() => setSuccess(''), 3000); };
+
+  // Shown at the top of the Visit Log / Reports / Consultation tabs while
+  // access isn't approved. The backend already 403s any underlying
+  // read/write in this state (records/prescriptions arrays are just empty),
+  // so this is purely an explanatory notice, not the actual gate.
+  const accessNotice = (label) => patient?.access_status !== 'approved' && (
+    <div className="card" style={{ textAlign: 'center', padding: '32px 24px', marginBottom: '20px' }}>
+      <span className="material-symbols-outlined" style={{ fontSize: '36px', color: 'var(--outline)' }}>lock</span>
+      <p style={{ color: 'var(--outline)', marginTop: '10px', fontSize: '14px' }}>
+        {patient?.access_status === 'pending'
+          ? `Waiting for the patient to approve access before you can view ${label}.`
+          : `Request access above to view ${label}.`}
+      </p>
+    </div>
+  );
 
   // ── Record ──
   const handleAddRecord = async () => {
@@ -384,6 +421,9 @@ export default function DoctorPatientView() {
               {patient?.blood_group && (
                 <span className="badge badge-green"><span className="material-symbols-outlined">water_drop</span> {patient?.blood_group}</span>
               )}
+              {(patient?.age != null || patient?.sex) && (
+                <span className="dpv-dob">{[patient?.sex, patient?.age != null ? `${patient.age}y` : null].filter(Boolean).join(', ')}</span>
+              )}
               {patient?.date_of_birth && (
                 <span className="dpv-dob"><span className="material-symbols-outlined">calendar_today</span> {toDDMMYYYY(patient.date_of_birth)}</span>
               )}
@@ -391,6 +431,20 @@ export default function DoctorPatientView() {
                 <span className="dpv-phone"><span className="material-symbols-outlined">call</span> {patient.phone}</span>
               )}
             </div>
+          </div>
+          <div className="dpv-access-status">
+            {patient?.access_status === 'approved' && (
+              <span className="badge badge-green"><span className="material-symbols-outlined" style={{fontSize:'16px'}}>lock_open</span> Full Access</span>
+            )}
+            {patient?.access_status === 'pending' && (
+              <span className="badge badge-warning"><span className="material-symbols-outlined" style={{fontSize:'16px'}}>hourglass_top</span> Approval Pending</span>
+            )}
+            {['none', 'denied', 'revoked'].includes(patient?.access_status) && (
+              <button className="btn-primary" disabled={requestingAccess} onClick={handleRequestAccess}>
+                <span className="material-symbols-outlined" style={{fontSize:'18px'}}>lock</span>
+                {requestingAccess ? 'Requesting...' : patient?.access_status === 'none' ? 'Request Full Access' : 'Request Access Again'}
+              </button>
+            )}
           </div>
         </div>
 
@@ -434,8 +488,12 @@ export default function DoctorPatientView() {
               <div className="card">
                 <h2 className="card-section-title"><span className="material-symbols-outlined">medication</span> Current Medications</h2>
                 <div className="tag-list">
-                  {tags(patient?.current_medications).length > 0
-                    ? tags(patient.current_medications).map(m => <span key={m} className="tag tag-blue">{m}</span>)
+                  {patient?.active_medications?.length > 0
+                    ? patient.active_medications.map((m, i) => (
+                        <span key={i} className="tag tag-blue">
+                          {m.medicine_name}{m.dosage ? ` — ${m.dosage}` : ''}{m.frequency ? ` (${m.frequency})` : ''}
+                        </span>
+                      ))
                     : <span className="not-set">No medications recorded</span>}
                 </div>
               </div>
@@ -465,6 +523,7 @@ export default function DoctorPatientView() {
         {/* ── VISIT LOG TAB ── */}
         {activeTab === 'visitlog' && (
           <div className="dpv-tab-content fade-up">
+            {accessNotice("this patient's visit history")}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
               <h2 className="page-title" style={{ fontSize: '22px' }}>Visit Log</h2>
               <div style={{ display: 'flex', gap: '10px' }}>
@@ -667,6 +726,7 @@ export default function DoctorPatientView() {
         {/* ── REPORTS TAB ── */}
         {activeTab === 'reports' && (
           <div className="dpv-tab-content fade-up">
+            {accessNotice('this patient\'s reports')}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
               <h2 className="page-title" style={{ fontSize: '22px' }}>Reports</h2>
               <button className="dpv-add-btn" onClick={() => { setShowRecordForm(!showRecordForm); setShowPrescForm(false); setError(''); }}>
@@ -756,6 +816,7 @@ export default function DoctorPatientView() {
         {/* ── WRITE PRESCRIPTION TAB ── */}
         {activeTab === 'consult' && (
           <div className="dpv-tab-content fade-up">
+            {accessNotice('this patient\'s consultation history, or write a new one,')}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
               <h2 className="page-title" style={{ fontSize: '22px' }}>Patient Consultation</h2>
               <div style={{ display: 'flex', gap: '10px' }}>

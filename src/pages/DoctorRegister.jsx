@@ -2,15 +2,9 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDoctorAuth } from '../context/DoctorAuthContext';
 import API from '../api/axios';
+import SpecializationPicker from '../components/SpecializationPicker';
 import './Auth.css';
 import './DoctorAuth.css';
-
-const SPECIALIZATIONS = [
-  'General Physician', 'Cardiology', 'Neurology', 'Orthopedic',
-  'Dermatology', 'Ophthalmology', 'Pediatrics', 'Gynecology',
-  'Psychiatry', 'Oncology', 'Nephrology', 'Gastroenterology',
-  'Pulmonology', 'Endocrinology', 'Radiology', 'Pathology', 'Other'
-];
 
 export default function DoctorRegister() {
   const { doctorLogin } = useDoctorAuth();
@@ -21,7 +15,7 @@ export default function DoctorRegister() {
 
   const [form, setForm] = useState({
     full_name: '', email: '', password: '', confirm_password: '',
-    phone: '', specialization: '', license_number: '', hospital_name: ''
+    phone: '', specializations: [], license_number: '', hospital_name: ''
   });
 
   // OTP step
@@ -39,6 +33,10 @@ export default function DoctorRegister() {
   const handleNext = () => {
     if (!form.full_name || !form.email || !form.password) {
       setError('Please fill in all required fields.');
+      return;
+    }
+    if (form.full_name.trim().split(/\s+/).filter(Boolean).length < 3) {
+      setError('Please enter your full name with first, middle and last name.');
       return;
     }
     if (form.password !== form.confirm_password) {
@@ -64,8 +62,8 @@ export default function DoctorRegister() {
   };
 
   const handleSubmit = async () => {
-    if (!form.phone || !form.specialization || !form.license_number || !form.hospital_name) {
-      setError('Please fill in all required fields.');
+    if (!form.phone || form.specializations.length === 0 || !form.license_number || !form.hospital_name) {
+      setError('Please fill in all required fields, including at least one specialization.');
       return;
     }
     setLoading(true);
@@ -76,7 +74,7 @@ export default function DoctorRegister() {
         email: form.email,
         password: form.password,
         phone: form.phone,
-        specialization: form.specialization,
+        specializations: form.specializations,
         license_number: form.license_number,
         hospital_name: form.hospital_name,
       });
@@ -169,9 +167,9 @@ export default function DoctorRegister() {
           {step === 1 && (
             <div className="auth-fields">
               <div className="form-group">
-                <label className="form-label">Full Name *</label>
+                <label className="form-label">Full Name * <span className="field-hint">(first, middle & last name)</span></label>
                 <input className="form-input" name="full_name"
-                  placeholder="Dr. Arjun Mehta"
+                  placeholder="Dr. Arjun Kumar Mehta"
                   value={form.full_name} onChange={handleChange} />
               </div>
               <div className="form-group">
@@ -207,14 +205,10 @@ export default function DoctorRegister() {
                   value={form.phone} onChange={handleChange} />
               </div>
               <div className="form-group">
-                <label className="form-label">Specialization *</label>
-                <select className="form-input" name="specialization"
-                  value={form.specialization} onChange={handleChange}>
-                  <option value="">Select specialization</option>
-                  {SPECIALIZATIONS.map(s => (
-                    <option key={s} value={s}>{s}</option>
-                  ))}
-                </select>
+                <label className="form-label">Specializations *</label>
+                <SpecializationPicker
+                  value={form.specializations}
+                  onChange={(specializations) => { setForm({ ...form, specializations }); setError(''); }} />
               </div>
               <div className="form-group">
                 <label className="form-label">Medical License Number *</label>

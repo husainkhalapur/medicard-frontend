@@ -57,6 +57,15 @@
 .pub-tag-orange { background: var(--tertiary-fixed); color: var(--on-tertiary-fixed); }
 .pub-tag-blue { background: var(--secondary-container); color: var(--on-secondary-fixed); }
 
+.pub-med-list { display: flex; flex-direction: column; gap: 10px; }
+.pub-med-item {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 10px;
+  background: var(--secondary-container); color: var(--on-secondary-fixed);
+  border-radius: var(--radius-lg); padding: 10px 16px;
+}
+.pub-med-name { font-size: 15px; font-weight: 700; font-family: 'Manrope', sans-serif; }
+.pub-med-detail { font-size: 13px; opacity: 0.85; }
+
 .pub-notes { border-left: 4px solid var(--primary); }
 .pub-notes-text { font-size: 15px; color: var(--on-surface-variant); line-height: 1.7; }
 

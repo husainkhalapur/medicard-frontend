@@ -39,8 +39,8 @@ export default function DoctorPending() {
               <span className="detail-value">{doctor?.email}</span>
             </div>
             <div className="pending-detail-row">
-              <span className="detail-label">Specialization</span>
-              <span className="detail-value">{doctor?.specialization}</span>
+              <span className="detail-label">Specializations</span>
+              <span className="detail-value">{doctor?.specializations?.join(', ')}</span>
             </div>
             <div className="pending-detail-row">
               <span className="detail-label">License Number</span>

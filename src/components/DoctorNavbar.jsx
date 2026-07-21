@@ -32,10 +32,10 @@ export default function DoctorNavbar() {
             <span className="material-symbols-outlined">calendar_month</span>Appointments
           </Link>
           <div className="navbar-divider" />
-          <div className="navbar-user">
+          <Link to="/doctor/profile" className="navbar-user" title="View profile">
             <div className="doctor-avatar">{doctor?.full_name?.charAt(0).toUpperCase()}</div>
             <span className="user-name">{doctor?.full_name?.split(' ').slice(0,2).join(' ')}</span>
-          </div>
+          </Link>
           <button className="btn-tonal doctor-logout-btn" onClick={handleLogout} style={{padding:'8px 18px', fontSize:'13px', marginLeft:'4px'}}>
             Logout
           </button>

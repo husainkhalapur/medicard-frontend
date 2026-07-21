@@ -8,6 +8,7 @@ import './Dashboard.css';
 export default function Dashboard() {
   const { user } = useAuth();
   const [counts, setCounts] = useState({ records: 0, prescriptions: 0 });
+  const [pendingAccessCount, setPendingAccessCount] = useState(0);
 
   useEffect(() => {
     const fetchCounts = async () => {
@@ -16,7 +17,14 @@ export default function Dashboard() {
         setCounts({ records: recRes.data.records.length, prescriptions: preRes.data.prescriptions.length });
       } catch (err) { console.error(err); }
     };
+    const fetchAccessRequests = async () => {
+      try {
+        const res = await API.get('/patient-access');
+        setPendingAccessCount(res.data.grants.filter(g => g.status === 'pending').length);
+      } catch (err) { console.error(err); }
+    };
     fetchCounts();
+    fetchAccessRequests();
   }, []);
 
   const quickActions = [
@@ -49,6 +57,20 @@ export default function Dashboard() {
             </Link>
           </div>
         </header>
+
+        {/* Pending access requests */}
+        {pendingAccessCount > 0 && (
+          <div className="dash-access-notice fade-up">
+            <span className="material-symbols-outlined">verified_user</span>
+            <div style={{flex:1}}>
+              <strong>{pendingAccessCount} doctor{pendingAccessCount > 1 ? 's' : ''} requesting access to your records.</strong>
+              <span> Until you respond, they can only see your emergency profile.</span>
+            </div>
+            <Link to="/access-requests" className="btn-primary" style={{fontSize:'13px', padding:'8px 20px', flexShrink:0}}>
+              Review Now
+            </Link>
+          </div>
+        )}
 
         {/* ID Card */}
         <div className="medicard-id-card fade-up fade-up-delay-1">

@@ -64,6 +64,11 @@ export default function EmergencyPublic() {
                 🩸 Blood Group: <strong>{data.blood_group}</strong>
               </div>
             )}
+            {(data.age != null || data.sex) && (
+              <div className="pub-blood">
+                {[data.sex, data.age != null ? `${data.age} years old` : null].filter(Boolean).join(' · ')}
+              </div>
+            )}
           </div>
         </div>
 
@@ -89,12 +94,16 @@ export default function EmergencyPublic() {
           </div>
         )}
 
-        {data.current_medications?.length > 0 && (
+        {data.active_medications?.length > 0 && (
           <div className="pub-section">
             <div className="pub-section-title"><span className="material-symbols-outlined">medication</span> CURRENT MEDICATIONS</div>
-            <div className="pub-tags">
-              {data.current_medications.map(m => (
-                <span key={m} className="pub-tag pub-tag-blue">{m}</span>
+            <div className="pub-med-list">
+              {data.active_medications.map((m, i) => (
+                <div key={i} className="pub-med-item">
+                  <span className="pub-med-name">{m.medicine_name}</span>
+                  {m.dosage && <span className="pub-med-detail">{m.dosage}</span>}
+                  {m.frequency && <span className="pub-med-detail">{m.frequency}</span>}
+                </div>
               ))}
             </div>
           </div>

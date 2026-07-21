@@ -43,6 +43,15 @@
 .summary-label { font-size: 13px; color: var(--outline); font-weight: 500; }
 .summary-value { font-size: 14px; font-weight: 600; color: var(--on-surface); font-family: 'Manrope', sans-serif; }
 
+.dash-access-notice {
+  background: var(--tertiary-fixed);
+  border-radius: var(--radius-lg);
+  padding: 14px 20px;
+  display: flex; align-items: center; gap: 12px;
+  font-size: 14px; color: var(--on-tertiary-fixed);
+}
+.dash-access-notice .material-symbols-outlined { font-size: 20px !important; flex-shrink: 0; }
+
 @media (max-width: 1024px) { .quick-actions-grid { grid-template-columns: repeat(3,1fr); } }
 @media (max-width: 768px) {
   .dashboard-bottom { grid-template-columns: 1fr; }

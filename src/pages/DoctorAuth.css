@@ -43,3 +43,34 @@
 
 .doctor-logout-btn { color: var(--secondary) !important; border-color: var(--secondary) !important; }
 .doctor-logout-btn:hover { background: var(--secondary-container) !important; }
+
+/* Specialization multi-select (doctor registration) */
+.spec-chip-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+.spec-chip {
+  padding: 6px 14px; border-radius: var(--radius-full);
+  border: 1.5px solid var(--outline-variant, #d0d5dd);
+  background: var(--surface-container-high);
+  font-size: 12.5px; font-weight: 600; font-family: 'Manrope', sans-serif;
+  color: var(--on-surface-variant); cursor: pointer; transition: var(--transition);
+}
+.spec-chip:hover { background: var(--secondary-container); }
+.spec-chip.active { background: var(--secondary); border-color: var(--secondary); color: white; }
+
+.spec-custom-row { display: flex; gap: 8px; }
+.spec-custom-row .form-input { flex: 1; }
+.spec-add-btn { flex-shrink: 0; padding: 0 18px !important; font-size: 13px; }
+
+.spec-selected-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.spec-selected-tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--secondary-container); color: var(--on-secondary-fixed);
+  padding: 5px 6px 5px 12px; border-radius: var(--radius-full);
+  font-size: 12.5px; font-weight: 600; font-family: 'Manrope', sans-serif;
+}
+.spec-selected-tag button {
+  background: none; border: none; cursor: pointer;
+  color: inherit; font-size: 16px; line-height: 1;
+  width: 18px; height: 18px; display: flex; align-items: center; justify-content: center;
+  border-radius: 50%; opacity: 0.7;
+}
+.spec-selected-tag button:hover { opacity: 1; background: rgba(0,0,0,0.08); }
