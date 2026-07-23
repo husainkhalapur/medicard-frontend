@@ -13,7 +13,11 @@ API.interceptors.request.use((req) => {
 API.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    // skipAuthRedirect lets a caller (e.g. the silent session check on app
+    // load) handle a 401 itself without forcing a hard navigation to
+    // /login — that check can run on any public page and shouldn't yank
+    // the user away from it just because a stale token expired.
+    if (error.response?.status === 401 && !error.config?.skipAuthRedirect) {
       localStorage.removeItem('medicard_token');
       localStorage.removeItem('medicard_user');
       window.location.href = '/login';

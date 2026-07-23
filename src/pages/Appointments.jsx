@@ -370,11 +370,19 @@ export default function Appointments() {
                   </div>
                 ) : filteredDoctors.map(doc => (
                   <div key={doc.id}
-                    className={`doctor-card ${selectedDoctor?.id === doc.id ? 'selected' : ''}`}
-                    onClick={() => { setSelectedDoctor(doc); setSelectedDate(null); setSlots([]); setSelectedSlot(null); }}>
+                    className={`doctor-card ${selectedDoctor?.id === doc.id ? 'selected' : ''} ${doc.dnd_enabled ? 'unavailable' : ''}`}
+                    title={doc.dnd_enabled ? 'This doctor is not accepting appointments right now.' : undefined}
+                    onClick={() => { if (doc.dnd_enabled) return; setSelectedDoctor(doc); setSelectedDate(null); setSlots([]); setSelectedSlot(null); }}>
                     <div className="doctor-card-avatar">{doc.full_name.charAt(0)}</div>
                     <div className="doctor-card-info">
-                      <div className="doctor-card-name">{doc.full_name}</div>
+                      <div className="doctor-card-name">
+                        {doc.full_name}
+                        {doc.dnd_enabled && (
+                          <span className="badge badge-error" style={{marginLeft:'8px', fontSize:'11px', verticalAlign:'middle'}}>
+                            Not Available
+                          </span>
+                        )}
+                      </div>
                       <div className="doctor-card-spec">{doc.specializations?.join(', ')}</div>
                       <div className="doctor-card-hosp">
                         <span className="material-symbols-outlined" style={{fontSize:'14px'}}>local_hospital</span>
@@ -447,10 +455,10 @@ export default function Appointments() {
                               onClick={() => slot.available && setSelectedSlot(slot.time)}>
                               <span>{slot.time}</span>
                               {!slot.available
-                                ? <span className="slot-status booked-label">{slot.dayOff ? 'Day Off' : slot.past ? 'Past' : 'Booked'}</span>
+                                ? <span className="slot-status booked-label">{slot.dayOff ? 'Day Off' : slot.past ? 'Past' : 'Full'}</span>
                                 : selectedSlot === slot.time
                                   ? <span className="material-symbols-outlined" style={{fontSize:'16px'}}>check_circle</span>
-                                  : <span className="slot-status avail-label">Open</span>}
+                                  : <span className="slot-status avail-label">{slot.capacity > 1 ? `${slot.remaining} left` : 'Open'}</span>}
                             </button>
                           ))}
                         </div>

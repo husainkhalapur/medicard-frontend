@@ -450,10 +450,10 @@ export default function DoctorAppointments() {
                         onClick={() => { if (slot.available) { setSelectedCreateSlot(slot.time); setCreateExtraCount(0); } }}>
                         <span>{slot.time}</span>
                         {!slot.available
-                          ? <span className="slot-status booked-label">{slot.dayOff ? 'Day Off' : slot.past ? 'Past' : 'Booked'}</span>
+                          ? <span className="slot-status booked-label">{slot.dayOff ? 'Day Off' : slot.past ? 'Past' : 'Full'}</span>
                           : selectedCreateSlot === slot.time
                             ? <span className="material-symbols-outlined" style={{fontSize:'16px'}}>check_circle</span>
-                            : <span className="slot-status avail-label">Open</span>}
+                            : <span className="slot-status avail-label">{slot.capacity > 1 ? `${slot.remaining} left` : 'Open'}</span>}
                       </button>
                     ))}
                   </div>

@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useDoctorAuth } from '../context/DoctorAuthContext';
 import API from '../api/axios';
 import SpecializationPicker from '../components/SpecializationPicker';
+import { validatePassword, getPasswordChecklist } from '../utils/passwordPolicy';
 import './Auth.css';
 import './DoctorAuth.css';
 
@@ -18,15 +19,24 @@ export default function DoctorRegister() {
     phone: '', specializations: [], license_number: '', hospital_name: ''
   });
 
-  // OTP step
-  const [otp, setOtp] = useState('');
-  const [otpPhone, setOtpPhone] = useState('');
-  const [verifying, setVerifying] = useState(false);
-  const [resending, setResending] = useState(false);
-  const [resendCooldown, setResendCooldown] = useState(0);
+  // OTP step — disabled for now, see handleSubmit and the commented-out
+  // step-3 JSX below.
+  // const [otp, setOtp] = useState('');
+  // const [otpPhone, setOtpPhone] = useState('');
+  // const [verifying, setVerifying] = useState(false);
+  // const [resending, setResending] = useState(false);
+  // const [resendCooldown, setResendCooldown] = useState(0);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+    setError('');
+  };
+
+  // Phone is entered as just the 10-digit local number — the +91 prefix is
+  // fixed in the UI and stitched back on before it's sent to the API.
+  const handlePhoneChange = (e) => {
+    const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
+    setForm({ ...form, phone: digits });
     setError('');
   };
 
@@ -39,31 +49,35 @@ export default function DoctorRegister() {
       setError('Please enter your full name with first, middle and last name.');
       return;
     }
-    if (form.password !== form.confirm_password) {
-      setError('Passwords do not match.');
+    const pwCheck = validatePassword(form.password);
+    if (!pwCheck.valid) {
+      setError(pwCheck.message);
       return;
     }
-    if (form.password.length < 6) {
-      setError('Password must be at least 6 characters.');
+    if (form.password !== form.confirm_password) {
+      setError('Passwords do not match.');
       return;
     }
     setError('');
     setStep(2);
   };
 
-  const startResendCooldown = () => {
-    setResendCooldown(30);
-    const interval = setInterval(() => {
-      setResendCooldown(prev => {
-        if (prev <= 1) { clearInterval(interval); return 0; }
-        return prev - 1;
-      });
-    }, 1000);
-  };
+  // const startResendCooldown = () => {
+  //   setResendCooldown(30);
+  //   const interval = setInterval(() => {
+  //     setResendCooldown(prev => {
+  //       if (prev <= 1) { clearInterval(interval); return 0; }
+  //       return prev - 1;
+  //     });
+  //   }, 1000);
+  // };
 
+  // OTP verification disabled for now — request-otp creates the account
+  // directly (backend change to match), so this logs the doctor in
+  // immediately instead of advancing to a step-3 OTP screen.
   const handleSubmit = async () => {
-    if (!form.phone || form.specializations.length === 0 || !form.license_number || !form.hospital_name) {
-      setError('Please fill in all required fields, including at least one specialization.');
+    if (form.phone.length !== 10 || form.specializations.length === 0 || !form.license_number || !form.hospital_name) {
+      setError('Please fill in all required fields, including a valid 10-digit phone number and at least one specialization.');
       return;
     }
     setLoading(true);
@@ -73,14 +87,13 @@ export default function DoctorRegister() {
         full_name: form.full_name,
         email: form.email,
         password: form.password,
-        phone: form.phone,
+        phone: `+91${form.phone}`,
         specializations: form.specializations,
         license_number: form.license_number,
         hospital_name: form.hospital_name,
       });
-      setOtpPhone(res.data.phone);
-      setStep(3);
-      startResendCooldown();
+      doctorLogin(res.data.doctor, res.data.token);
+      navigate('/doctor/pending');
     } catch (err) {
       setError(err.response?.data?.error || 'Registration failed. Please try again.');
     } finally {
@@ -88,31 +101,31 @@ export default function DoctorRegister() {
     }
   };
 
-  const handleVerifyOtp = async () => {
-    if (!otp) { setError('Please enter the OTP.'); return; }
-    setVerifying(true); setError('');
-    try {
-      const res = await API.post('/doctors/register/verify-otp', { phone: otpPhone, otp });
-      doctorLogin(res.data.doctor, res.data.token);
-      navigate('/doctor/pending');
-    } catch (err) {
-      setError(err.response?.data?.error || 'OTP verification failed. Please try again.');
-    } finally {
-      setVerifying(false);
-    }
-  };
+  // const handleVerifyOtp = async () => {
+  //   if (!otp) { setError('Please enter the OTP.'); return; }
+  //   setVerifying(true); setError('');
+  //   try {
+  //     const res = await API.post('/doctors/register/verify-otp', { phone: otpPhone, otp });
+  //     doctorLogin(res.data.doctor, res.data.token);
+  //     navigate('/doctor/pending');
+  //   } catch (err) {
+  //     setError(err.response?.data?.error || 'OTP verification failed. Please try again.');
+  //   } finally {
+  //     setVerifying(false);
+  //   }
+  // };
 
-  const handleResendOtp = async () => {
-    setResending(true); setError('');
-    try {
-      await API.post('/doctors/register/resend-otp', { phone: otpPhone });
-      startResendCooldown();
-    } catch (err) {
-      setError(err.response?.data?.error || 'Failed to resend OTP.');
-    } finally {
-      setResending(false);
-    }
-  };
+  // const handleResendOtp = async () => {
+  //   setResending(true); setError('');
+  //   try {
+  //     await API.post('/doctors/register/resend-otp', { phone: otpPhone });
+  //     startResendCooldown();
+  //   } catch (err) {
+  //     setError(err.response?.data?.error || 'Failed to resend OTP.');
+  //   } finally {
+  //     setResending(false);
+  //   }
+  // };
 
   return (
     <div className="auth-page">
@@ -147,19 +160,19 @@ export default function DoctorRegister() {
 
       <div className="auth-right">
         <div className="auth-form-wrap fade-up">
+          {/* Step indicator/titles collapsed to 2 steps while OTP (step 3) is
+              disabled. Restore the 3rd dot and the step===3 branches below
+              when re-enabling. */}
           <div className="auth-steps">
             <div className={`auth-step ${step >= 1 ? 'active doctor-step' : ''}`}>1</div>
             <div className="auth-step-line" />
             <div className={`auth-step ${step >= 2 ? 'active doctor-step' : ''}`}>2</div>
-            <div className="auth-step-line" />
-            <div className={`auth-step ${step >= 3 ? 'active doctor-step' : ''}`}>3</div>
           </div>
 
-          <h1 className="auth-title">{step === 3 ? 'Verify your phone' : 'Doctor Registration'}</h1>
+          <h1 className="auth-title">Doctor Registration</h1>
           <p className="auth-sub">
-            {step === 1 ? 'Step 1 of 3 — Account details'
-              : step === 2 ? 'Step 2 of 3 — Professional details'
-              : 'Step 3 of 3 — Enter the OTP sent to your phone'}
+            {step === 1 ? 'Step 1 of 2 — Account details'
+              : 'Step 2 of 2 — Professional details'}
           </p>
 
           {error && <div className="auth-error">{error}</div>}
@@ -181,14 +194,34 @@ export default function DoctorRegister() {
               <div className="form-group">
                 <label className="form-label">Password *</label>
                 <input className="form-input" name="password" type="password"
-                  placeholder="Minimum 6 characters"
+                  placeholder="Min 8 chars, upper/lower/number/symbol"
                   value={form.password} onChange={handleChange} />
+                {form.password && (
+                  <div className="pw-checklist">
+                    {getPasswordChecklist(form.password).map(rule => (
+                      <div key={rule.label} className={`pw-check-item ${rule.met ? 'met' : ''}`}>
+                        <span className="material-symbols-outlined pw-check-icon">{rule.met ? 'check_circle' : 'radio_button_unchecked'}</span>
+                        <span>{rule.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
               <div className="form-group">
                 <label className="form-label">Confirm Password *</label>
                 <input className="form-input" name="confirm_password" type="password"
                   placeholder="Repeat your password"
                   value={form.confirm_password} onChange={handleChange} />
+                {form.confirm_password && (
+                  <div className="pw-checklist">
+                    <div className={`pw-check-item ${form.confirm_password === form.password ? 'met' : ''}`}>
+                      <span className="material-symbols-outlined pw-check-icon">
+                        {form.confirm_password === form.password ? 'check_circle' : 'radio_button_unchecked'}
+                      </span>
+                      <span>Passwords match</span>
+                    </div>
+                  </div>
+                )}
               </div>
               <button className="btn-primary auth-btn doctor-btn" onClick={handleNext}>
                 Continue →
@@ -200,9 +233,11 @@ export default function DoctorRegister() {
             <div className="auth-fields">
               <div className="form-group">
                 <label className="form-label">Phone Number *</label>
-                <input className="form-input" name="phone"
-                  placeholder="+91 98765 43210"
-                  value={form.phone} onChange={handleChange} />
+                <div className="form-input phone-input-group">
+                  <span className="phone-input-prefix">+91</span>
+                  <input className="phone-input-field" name="phone" type="tel" inputMode="numeric"
+                    placeholder="98765 43210" value={form.phone} onChange={handlePhoneChange} />
+                </div>
               </div>
               <div className="form-group">
                 <label className="form-label">Specializations *</label>
@@ -231,6 +266,8 @@ export default function DoctorRegister() {
             </div>
           )}
 
+          {/* Step 3 (phone OTP) disabled for now — handleSubmit above logs
+              the doctor in directly after step 2.
           {step === 3 && (
             <div className="auth-fields">
               <p style={{fontSize:'14px', color:'var(--outline)', marginBottom:'4px'}}>
@@ -252,6 +289,7 @@ export default function DoctorRegister() {
               </button>
             </div>
           )}
+          */}
 
           <p className="auth-switch">
             Already registered? <Link to="/doctor/login">Sign in</Link>

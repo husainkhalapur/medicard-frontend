@@ -13,7 +13,11 @@ DoctorAPI.interceptors.request.use((req) => {
 DoctorAPI.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    // skipAuthRedirect lets a caller (e.g. the silent session check on app
+    // load) handle a 401 itself without forcing a hard navigation to
+    // /doctor/login — that check can run on any public page and shouldn't
+    // yank the doctor away from it just because a stale token expired.
+    if (error.response?.status === 401 && !error.config?.skipAuthRedirect) {
       localStorage.removeItem('medicard_doctor_token');
       localStorage.removeItem('medicard_doctor');
       window.location.href = '/doctor/login';

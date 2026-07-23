@@ -76,6 +76,8 @@
 }
 .doctor-card:hover { background: var(--surface-container-high); }
 .doctor-card.selected { border-color: var(--primary); background: var(--primary-fixed); }
+.doctor-card.unavailable { cursor: not-allowed; opacity: 0.6; }
+.doctor-card.unavailable:hover { background: var(--surface-container-low); }
 
 .doctor-card-avatar {
   width: 44px; height: 44px; border-radius: 50%;

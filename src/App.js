@@ -39,6 +39,15 @@ function PatientPublicRoute({ children }) {
   return children;
 }
 
+// Homepage: a device with a verified session (checked in AuthContext, never
+// just trusted from localStorage) goes straight to the dashboard instead of
+// the marketing landing page.
+function HomeRoute() {
+  const { user } = useAuth();
+  if (user) return <Navigate to="/dashboard" replace />;
+  return <Landing />;
+}
+
 // Doctor route guards
 function DoctorProtectedRoute({ children }) {
   const { doctor } = useDoctorAuth();
@@ -63,11 +72,32 @@ function DoctorPendingRoute({ children }) {
   return children;
 }
 
+// Shown instead of any route while a stored session token is being
+// confirmed against the server, so nothing (landing page, sidebar,
+// dashboard) ever renders based on an unverified guess.
+function AuthLoadingScreen() {
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      minHeight: '100vh', background: 'var(--surface, #fff)'
+    }}>
+      <span className="spinner" style={{
+        width: '32px', height: '32px', borderWidth: '3px',
+        borderColor: 'rgba(0,0,0,0.15)', borderTopColor: 'var(--primary, #2563eb)'
+      }} />
+    </div>
+  );
+}
+
 function AppRoutes() {
+  const { loading: userLoading } = useAuth();
+  const { loading: doctorLoading } = useDoctorAuth();
+  if (userLoading || doctorLoading) return <AuthLoadingScreen />;
+
   return (
     <Routes>
       {/* Public */}
-      <Route path="/" element={<Landing />} />
+      <Route path="/" element={<HomeRoute />} />
 
       {/* Patient Auth */}
       <Route path="/register" element={

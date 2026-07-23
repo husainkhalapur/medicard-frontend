@@ -27,7 +27,11 @@ const emptySettingsForm = (doctor) => ({
   working_days: doctor?.working_days || [0, 1, 2, 3, 4, 5, 6],
   available_start_time: doctor?.available_start_time ? to24Hour(doctor.available_start_time) : '09:00',
   available_end_time: doctor?.available_end_time ? to24Hour(doctor.available_end_time) : '17:00',
+  max_patients_per_slot: doctor?.max_patients_per_slot != null ? String(doctor.max_patients_per_slot) : '1',
 });
+
+const MAX_PATIENTS_PER_SLOT_MIN = 1;
+const MAX_PATIENTS_PER_SLOT_MAX = 20;
 
 // 0=Sunday..6=Saturday, matching doctors.working_days and JS Date.getDay().
 const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -40,6 +44,20 @@ export default function DoctorProfile() {
   const [error, setError] = useState('');
 
   const [form, setForm] = useState(emptyForm(doctor));
+
+  const [dndSaving, setDndSaving] = useState(false);
+  const handleToggleDnd = async () => {
+    setDndSaving(true);
+    setError('');
+    try {
+      const res = await DoctorAPI.put('/doctors/dnd', { dnd_enabled: !doctor?.dnd_enabled });
+      updateDoctor(res.data.doctor);
+    } catch (err) {
+      setError(err.response?.data?.error || 'Failed to update Do Not Disturb.');
+    } finally {
+      setDndSaving(false);
+    }
+  };
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
@@ -96,6 +114,7 @@ export default function DoctorProfile() {
   const handleSettingsSave = async () => {
     const advanceRupees = Number(settingsForm.advance_amount_rupees);
     const cutoffHours = Number(settingsForm.cancellation_cutoff_hours);
+    const maxPatientsPerSlot = Number(settingsForm.max_patients_per_slot);
 
     if (!Number.isFinite(advanceRupees) || advanceRupees < 0) {
       setSettingsError('Enter a valid advance amount.'); return;
@@ -109,6 +128,10 @@ export default function DoctorProfile() {
     if (settingsForm.available_start_time >= settingsForm.available_end_time) {
       setSettingsError('Available start time must be before the end time.'); return;
     }
+    if (!Number.isInteger(maxPatientsPerSlot) ||
+        maxPatientsPerSlot < MAX_PATIENTS_PER_SLOT_MIN || maxPatientsPerSlot > MAX_PATIENTS_PER_SLOT_MAX) {
+      setSettingsError(`Max patients per slot must be a whole number between ${MAX_PATIENTS_PER_SLOT_MIN} and ${MAX_PATIENTS_PER_SLOT_MAX}.`); return;
+    }
 
     setSettingsSaving(true);
     setSettingsError('');
@@ -120,6 +143,7 @@ export default function DoctorProfile() {
         working_days: settingsForm.working_days,
         available_start_time: to12Hour(settingsForm.available_start_time),
         available_end_time: to12Hour(settingsForm.available_end_time),
+        max_patients_per_slot: maxPatientsPerSlot,
       });
       updateDoctor(res.data.doctor);
       setSettingsForm(emptySettingsForm(res.data.doctor));
@@ -149,7 +173,16 @@ export default function DoctorProfile() {
             <h1 className="page-title">My Profile</h1>
             <p className="page-sub">Manage the professional information on your doctor account</p>
           </div>
-          <div className="header-actions">
+          <div className="header-actions" style={{display:'flex', alignItems:'center', gap:'12px'}}>
+            <button
+              className={doctor?.dnd_enabled ? 'btn-primary' : 'btn-outline'}
+              style={doctor?.dnd_enabled ? {background:'#dc2626', borderColor:'#dc2626'} : undefined}
+              onClick={handleToggleDnd}
+              disabled={dndSaving}
+              title="Toggle whether patients can book new appointments with you">
+              <span className="material-symbols-outlined">{doctor?.dnd_enabled ? 'do_not_disturb_on' : 'do_not_disturb_off'}</span>
+              {dndSaving ? 'Updating...' : doctor?.dnd_enabled ? 'Do Not Disturb: On' : 'Do Not Disturb: Off'}
+            </button>
             {!editing ? (
               <button className="btn-primary" onClick={() => setEditing(true)}><span className="material-symbols-outlined">edit</span> Edit Profile</button>
             ) : (
@@ -276,6 +309,16 @@ export default function DoctorProfile() {
                     value={settingsForm.cancellation_cutoff_hours} onChange={handleSettingsChange} />
                 : <div className="profile-value">{settingsForm.cancellation_cutoff_hours}h before the appointment</div>}
               <span className="field-hint">Patients get a full refund if they cancel a confirmed appointment before this cutoff.</span>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Max Patients per Slot</label>
+              {settingsEditing
+                ? <input className="form-input" name="max_patients_per_slot" type="number"
+                    min={MAX_PATIENTS_PER_SLOT_MIN} max={MAX_PATIENTS_PER_SLOT_MAX} step="1"
+                    value={settingsForm.max_patients_per_slot} onChange={handleSettingsChange} />
+                : <div className="profile-value">{settingsForm.max_patients_per_slot}</div>}
+              <span className="field-hint">How many patients can be booked into the same time slot. Set above 1 to let multiple patients share one slot (e.g. a walk-in clinic).</span>
             </div>
 
             <div className="form-group">

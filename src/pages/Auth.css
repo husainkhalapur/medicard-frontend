@@ -115,6 +115,26 @@
   grid-template-columns: 1fr 1fr;
   gap: 16px;
 }
+/* Password strength checklist */
+.pw-checklist { display: flex; flex-direction: column; gap: 4px; margin-top: 8px; }
+.pw-check-item { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--outline); }
+.pw-check-item .pw-check-icon { font-size: 14px !important; width: 14px; }
+.pw-check-item.met { color: #16a34a; }
+.pw-check-item.met .pw-check-icon { color: #16a34a; }
+
+/* Phone number field with a fixed +91 prefix. Selector combines with
+   .form-input (higher specificity than .form-input alone) so this padding
+   override always wins regardless of CSS import order. */
+.form-input.phone-input-group { display: flex; align-items: center; gap: 8px; padding: 0 16px; }
+.form-input.phone-input-group:focus-within { border-bottom-color: var(--primary); background: var(--surface-container-high); }
+.phone-input-prefix { font-weight: 800; color: #000; font-size: 15px; }
+.phone-input-field {
+  flex: 1; min-width: 0; border: none; background: transparent;
+  padding: 12px 0; font-size: 15px; color: var(--on-surface);
+  outline: none; font-family: inherit;
+}
+.phone-input-field::placeholder { color: var(--outline); }
+
 @media (max-width: 480px) {
   .auth-fields-row { grid-template-columns: 1fr; }
 }
